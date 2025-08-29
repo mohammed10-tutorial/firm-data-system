@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Accounts</title>
+<style>
+  :root{ --g900:#0f3d2e; --g800:#145a41; --g700:#1c7a57; --bg:#f6fbf8; --card:#fff; --ink:#1a2421; --muted:#5b6b6f; --line:#e5efe8; --soft:#eef8f2; }
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink)}
+  .nav{position:sticky;top:0;background:#ffffffcc;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:50}
+  .nav-inner{max-width:1200px;margin:0 auto;padding:10px 16px;display:flex;gap:10px;align-items:center}
+  .brand{font-weight:800;color:var(--g800);margin-right:8px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .tab{border:1px solid #d7eadf;background:var(--card);color:var(--g800);padding:8px 14px;border-radius:999px;font-weight:600;text-decoration:none}
+  .tab.active{background:var(--g800);color:#fff;border-color:var(--g800)}
+
+  .toolbar{position:sticky;top:56px;z-index:40;background:#ffffffcc;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .toolbar-inner{max-width:1200px;margin:0 auto;padding:10px 16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center}
+  .toolbar select,.toolbar input{padding:6px 10px;border:1px solid #cfe7da;border-radius:10px;background:#fff;font-size:13px;min-height:30px}
+  .btn{appearance:none;border:none;border-radius:12px;padding:8px 12px;font-weight:700;cursor:pointer}
+  .btn-primary{background:#1c7a57;color:#fff}
+
+  .wrap{max-width:1200px;margin:14px auto;padding:0 16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 8px 24px rgba(16,45,32,.06)}
+  h2.title{text-align:center;font-size:24px;margin:0 0 10px;color:var(--g900)}
+  .sub{text-align:center;margin:0 0 12px;color:var(--muted);font-size:13px}
+  .status{margin-top:10px;text-align:center;font-weight:700}
+
+  .orderRow{display:flex;gap:12px;margin-bottom:14px}
+  .stickyL{position:sticky;top:112px;align-self:flex-start}
+  .shared{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;min-width:272px}
+  .shared h3{margin:0 0 8px;color:var(--g800)}
+  .kv{display:grid;grid-template-columns:110px 1fr;gap:6px 10px;font-size:12px}
+
+  .right{flex:1;min-width:0}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .head{position:sticky;top:0;background:#ffffffcc;-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px);z-index:5;border-bottom:1px solid var(--line)}
+  .headCols{display:grid;grid-auto-flow:column;grid-auto-columns:340px;gap:8px;padding:8px 8px 6px;font:700 12px/1.1 system-ui;color:var(--muted);text-transform:uppercase;white-space:nowrap}
+  .cols{display:grid;grid-auto-flow:column;grid-auto-columns:340px;gap:8px;padding:8px;overflow:auto}
+
+  .party{border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff}
+  .partyTitle{font-size:12px;font-weight:800;color:var(--g800);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mini{font-size:10.5px;color:var(--muted);margin:6px 0 4px}
+  .inlike{width:100%;padding:6px 8px;border:1px solid #e8efe9;border-radius:8px;background:#fafdfa;font-size:12px;font-variant-numeric:tabular-nums}
+  .mono{font-variant-numeric:tabular-nums}
+
+  .payments{display:flex;flex-direction:column;gap:6px}
+  .payLine{display:grid;grid-template-columns:1fr 120px 24px;gap:6px}
+  .payAmt{padding:6px 8px;border:1px solid #e8efe9;border-radius:8px;background:#fff;font-size:12px;min-width:120px}
+  .payDate{padding:6px 8px;border:1px solid #e8efe9;border-radius:8px;background:#fff;font-size:12px}
+  .xbtn{display:inline-flex;align-items:center;justify-content:center;border:1px solid #e8efe9;border-radius:8px;background:#fff;cursor:pointer}
+  .addRow{margin-top:4px}
+
+  .loader{position:fixed;inset:0;background:#0006;display:none;align-items:center;justify-content:center;z-index:999;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  .ring{width:56px;height:56px;border:5px solid #fff;border-top:5px solid #1c7a57;border-radius:50%;animation:spin 1s linear infinite;box-shadow:0 0 14px #1c7a57}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+  <div class="nav">
+    <div class="nav-inner">
+      <div class="brand">Tabs</div>
+      <div class="tabs">
+        <a class="tab" href="order.html">Add Order</a>
+        <a class="tab" href="workflow.html">Workflow</a>
+        <a class="tab active" href="accounts.html">Accounts</a>
+        <a class="tab" href="reports.html">Reports</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="toolbar" role="region" aria-label="Filters and actions">
+    <div class="toolbar-inner">
+      <label for="filterParty">Party</label>
+      <input id="filterParty" type="text" placeholder="Search Party" />
+
+      <label for="minPending">Pending ≥</label>
+      <input id="minPending" type="number" min="0" step="1" placeholder="0" />
+
+      <label for="statusFilter">Status</label>
+      <select id="statusFilter" aria-label="Status">
+        <option value="not">Not Received</option>
+        <option value="rec">Received</option>
+        <option value="" selected>All</option>
+      </select>
+
+      <button class="btn btn-primary" id="saveAllBtn" aria-label="Save all changes">Save Updates</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <h2 class="title">Accounts</h2>
+      <p class="sub">Update amounts and status for each party, then press <strong>Save Updates</strong></p>
+
+      <div id="host"></div>
+      <div id="status" class="status" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <div class="loader" id="loader"><div class="ring"></div></div>
+
+<script>
+/* ====== CONFIG ====== */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby3vEHMfmF6D2z-WVnFIouMNeaccHd-54dTbOzMfAAERi5vER4UcDO8sugSFoMJbnQt/exec"; // MUST end with /exec
+const API_TOKEN = ""; // optional
+
+/* ====== STATE ====== */
+let DATA = [];
+let CHANGES = [];
+
+/* ====== HELPERS ====== */
+const el = id => document.getElementById(id);
+const showLoader = ()=> { const x = el('loader'); if (x) x.style.display='flex'; };
+const hideLoader = ()=> { const x = el('loader'); if (x) x.style.display='none'; };
+const setStatus = (m, ok=true)=>{ const s=el('status'); if (s){ s.style.color = ok?'#1c7a57':'#b00020'; s.textContent=m; } };
+const rupee = n => String(Number(n||0));
+const onlyDate = v => (typeof v==='string' && v.includes('T')) ? v.split('T')[0] : String(v||'');
+
+// Convert dd/mm/yyyy <-> yyyy-mm-dd (for <input type="date">)
+function toIso(dmy){
+  const m = String(dmy||'').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  return m ? `${m[3]}-${m[2]}-${m[1]}` : '';
+}
+function toDMY(iso){
+  const m = String(iso||'').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : '--/--/----';
+}
+
+// Robust API
+async function api(action, params={}){
+  const payload = { action, token: API_TOKEN, ...params };
+  const res = await fetch(SCRIPT_URL, {
+    method:'POST',
+    headers:{
+      'Content-Type':'application/x-www-form-urlencoded; charset=UTF-8',
+      'Accept':'application/json; charset=UTF-8'
+    },
+    body: new URLSearchParams({ payload: JSON.stringify(payload) })
+  });
+  const text = await res.text();
+  let j; try { j = JSON.parse(text); } catch(e) { throw new Error(`Invalid JSON: ${text.slice(0,120)}`); }
+  if (!j.success) throw new Error(j.message || 'Request failed');
+  return j;
+}
+
+function queueChange(rowIndex, patch){
+  const hit = CHANGES.find(x=> x.rowIndex===rowIndex);
+  if (hit) {
+    if (patch.totalAmt!=null) hit.totalAmt = patch.totalAmt;
+    if (patch.status!=null) hit.status = patch.status;
+    if (Array.isArray(patch.newPayments)) hit.newPayments = patch.newPayments;
+  } else {
+    CHANGES.push({ rowIndex, ...patch });
+  }
+}
+
+/* ====== RENDER ====== */
+function render(){
+  const host = el('host'); if (!host) return; host.innerHTML='';
+  const q = (el('filterParty')?.value||'').toLowerCase();
+  const stat = el('statusFilter')?.value ?? '';
+
+  const minP = el('minPending')?.value==='' ? null : Number(el('minPending').value||0);
+
+  const groups = DATA.filter(o=>{
+    return o.parties.some(p=>{
+      if (q && !String(p.party||'').toLowerCase().includes(q)) return false;
+
+      if (stat === 'not') { // Not Received
+        if (String(p.status||'') === 'Received') return false;
+      } else if (stat === 'rec') { // Received
+        if (String(p.status||'') !== 'Received') return false;
+      } // else All -> no status filtering
+
+      if (minP!=null && Number(p.pending||0) < minP) return false;
+      return true;
+    });
+  });
+
+  groups.forEach(o=>{
+    const row = document.createElement('div'); row.className='orderRow';
+
+    // left shared
+    const left = document.createElement('div'); left.className='stickyL';
+    left.innerHTML = `
+      <div class="shared">
+        <h3>Order ${o.srNo}</h3>
+        <div class="kv">
+          <div>Sr. No.</div><div>${o.shared['Sr. No.']||''}</div>
+          <div>Sheet Name</div><div>${o.shared['Sheet Name']||''}</div>
+          <div>Order Date</div><div>${onlyDate(o.shared['Order Date'])||''}</div>
+          <div>Sheet Size</div><div>${o.shared['Sheet Size']||''}</div>
+          <div>Quality (mm)</div><div>${o.shared['Quality (mm)']||''}</div>
+          <div>Quantity</div><div>${o.shared['Quantity']||''}</div>
+        </div>
+      </div>`;
+    row.appendChild(left);
+
+    // right columns
+    const right = document.createElement('div'); right.className='right';
+    const panel = document.createElement('div'); panel.className='panel';
+    const head = document.createElement('div'); head.className='head';
+    const headCols = document.createElement('div'); headCols.className='headCols';
+    const cols = document.createElement('div'); cols.className='cols';
+
+    o.parties.forEach(p=>{
+      // respect filters
+      if (stat === 'not' && String(p.status||'') === 'Received') return;
+      if (stat === 'rec' && String(p.status||'') !== 'Received') return;
+      if (q && !String(p.party||'').toLowerCase().includes(q)) return;
+      if (minP!=null && Number(p.pending||0) < minP) return;
+
+      const hc = document.createElement('div');
+      hc.textContent = `${p.party}${p.product?` (${p.product})`:''}`;
+      headCols.appendChild(hc);
+
+      const col = document.createElement('div'); col.className='party';
+      col.innerHTML = `
+        <div class="partyTitle">${p.party}${p.product?` (${p.product})`:''}</div>
+
+        ${p.delivDt ? `
+          <div class="mini">Delivery Date</div>
+          <div class="inlike mono">${onlyDate(p.delivDt)}</div>` : ``}
+
+        <div class="mini">Total Amount</div>
+        <input type="number" min="0" step="1" class="inlike mono totalInput" value="${Number(p.totalAmt||0)}" />
+
+        <div class="mini">Amount Received</div>
+        <div class="payments" data-row="${p.rowIndex}">
+          ${(p.payments||[]).map(({amount,dateStr})=>`
+            <div class="payLine">
+              <input class="payAmt" type="number" min="0" step="1" value="${Number(amount||0)}" />
+              <input class="payDate" type="date" value="${(dateStr && dateStr!=='--/--/----') ? toIso(dateStr) : ''}" />
+              <button class="xbtn" title="Remove">×</button>
+            </div>
+          `).join('')}
+        </div>
+        <button class="btn addRow" data-row="${p.rowIndex}">+ Add</button>
+
+        <div class="mini">Pending</div>
+        <div class="inlike mono pendingBox">${rupee(p.pending)}</div>
+
+        <div class="mini">Status</div>
+        <select class="inlike statusSel">
+          <option ${!p.status || p.status==='Pending' ? 'selected' : ''}>Pending</option>
+          <option ${p.status==='Received'?'selected':''}>Received</option>
+        </select>
+      `;
+
+      // total input
+      col.querySelector('.totalInput').addEventListener('input', e=>{
+        const v = Number(e.target.value||0);
+        p.totalAmt = v;
+        const sum = (p.payments||[]).reduce((a,x)=>a+(Number(x.amount)||0),0);
+        p.pending = Math.max(0, v - sum);
+        col.querySelector('.pendingBox').textContent = rupee(p.pending);
+        queueChange(p.rowIndex, { totalAmt: v, newPayments: p.payments||[], status: p.status || 'Pending' });
+      });
+
+      // payments add/remove/edit
+      const wrap = col.querySelector('.payments');
+      wrap.addEventListener('click', ev=>{
+        if (ev.target.classList.contains('xbtn')){
+          const line = ev.target.closest('.payLine');
+          const idx = Array.from(wrap.children).indexOf(line);
+          (p.payments ||= []).splice(idx,1);
+          line.remove();
+          const sum = (p.payments||[]).reduce((a,x)=>a+(Number(x.amount)||0),0);
+          const v = Number(p.totalAmt||0);
+          p.pending = Math.max(0, v - sum);
+          col.querySelector('.pendingBox').textContent = rupee(p.pending);
+          queueChange(p.rowIndex, { totalAmt: p.totalAmt, newPayments: p.payments, status: p.status || 'Pending' });
+        }
+      });
+      wrap.addEventListener('input', ()=>{
+        const lines = Array.from(wrap.querySelectorAll('.payLine'));
+        p.payments = lines.map(li=>{
+          const amt = Number(li.querySelector('.payAmt').value||0);
+          const iso = String(li.querySelector('.payDate').value||'').trim();
+          const dateStr = iso ? toDMY(iso) : '--/--/----';
+          return { amount: amt, dateStr };
+        });
+        const sum = (p.payments||[]).reduce((a,x)=>a+(Number(x.amount)||0),0);
+        const v = Number(p.totalAmt||0);
+        p.pending = Math.max(0, v - sum);
+        col.querySelector('.pendingBox').textContent = rupee(p.pending);
+        queueChange(p.rowIndex, { totalAmt: p.totalAmt, newPayments: p.payments, status: p.status || 'Pending' });
+      });
+
+      col.querySelector('.addRow').addEventListener('click', ()=>{
+        (p.payments ||= []).push({ amount:0, dateStr:"--/--/----" });
+        const div = document.createElement('div'); div.className='payLine';
+        div.innerHTML = `
+          <input class="payAmt" type="number" min="0" step="1" value="0" />
+          <input class="payDate" type="date" />
+          <button class="xbtn" title="Remove">×</button>
+        `;
+        wrap.appendChild(div);
+      });
+
+      // status
+      col.querySelector('.statusSel').addEventListener('change', e=>{
+        const v = e.target.value;
+        p.status = v;
+        queueChange(p.rowIndex, { totalAmt: p.totalAmt, newPayments: p.payments||[], status: v });
+      });
+
+      cols.appendChild(col);
+    });
+
+    head.appendChild(headCols);
+    panel.append(head, cols);
+    right.appendChild(panel);
+    row.appendChild(right);
+    host.appendChild(row);
+  });
+
+  setStatus(`Showing ${groups.length} order(s)`);
+}
+
+/* ====== SAVE ====== */
+async function saveAll(){
+  if (!CHANGES.length){ setStatus("Nothing to save"); return; }
+  showLoader();
+  try{
+    await api('updateAccountsBatch', { items: CHANGES });
+    CHANGES = [];
+    await loadData(); // after save, rows marked Received will disappear (backend excludes them)
+    setStatus("✅ Saved");
+  } catch(e){
+    setStatus('❌ ' + e.message, false);
+    console.error(e);
+  } finally { hideLoader(); }
+}
+
+/* ====== LOAD ====== */
+async function loadData(){
+  showLoader();
+  try{
+    const j = await api('getAccountsUI'); // backend returns all non-Received rows
+    DATA = j.orders || [];
+    render();
+  } catch(e){
+    setStatus('❌ ' + e.message, false);
+    console.error(e);
+  } finally { hideLoader(); }
+}
+
+/* ====== HOOKS ====== */
+document.addEventListener('DOMContentLoaded', async ()=>{
+  el('filterParty').addEventListener('input', render);
+  el('minPending').addEventListener('input', render);
+  el('statusFilter').addEventListener('change', render); // default is All
+  el('saveAllBtn').addEventListener('click', saveAll);
+  await loadData();
+});
+</script>
+</body>
+</html>

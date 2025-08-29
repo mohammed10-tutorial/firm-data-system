@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Reports</title>
+<style>
+  :root{ --g900:#0f3d2e; --g800:#145a41; --g700:#1c7a57; --bg:#f6fbf8; --card:#fff; --ink:#1a2421; --muted:#5b6b6f; --line:#e5efe8; --soft:#eef8f2; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink)}
+
+  /* NAV */
+  .nav{position:sticky;top:0;background:#ffffffcc;backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:50}
+  .nav-inner{max-width:1200px;margin:0 auto;padding:8px 12px;display:flex;gap:8px;align-items:center}
+  .brand{font-weight:800;color:var(--g800);margin-right:8px}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap}
+  .tab{border:1px solid #d7eadf;background:var(--card);color:var(--g800);padding:6px 12px;border-radius:999px;font-weight:600;text-decoration:none}
+  .tab.active{background:var(--g800);color:#fff;border-color:var(--g800)}
+
+  /* TOOLBAR */
+  .toolbar{position:sticky;top:46px;z-index:40;background:#ffffffcc;border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
+  .toolbar-inner{max-width:1200px;margin:0 auto;padding:8px 12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center}
+  .toolbar select,.toolbar input{padding:6px 8px;border:1px solid #cfe7da;border-radius:10px;background:#fff;font-size:12px;min-height:28px}
+  .btn{appearance:none;border:none;border-radius:10px;padding:8px 10px;font-weight:700;cursor:pointer}
+  .btn-primary{background:#1c7a57;color:#fff}
+  .btn-soft{background:#fff;border:1px dashed #cfe7da}
+
+  /* WRAP */
+  .wrap{max-width:1200px;margin:10px auto;padding:0 12px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(16,45,32,.05)}
+  h2.title{text-align:center;font-size:20px;margin:0 0 8px;color:var(--g900)}
+  .sub{text-align:center;margin:0 0 10px;color:var(--muted);font-size:12px}
+  .status{margin-top:8px;text-align:center;font-weight:700;font-size:12px}
+
+  /* KPIs */
+  .kpis{display:grid;grid-template-columns: repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:8px}
+  .kpi{border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--soft)}
+  .kpi h4{margin:0 0 6px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .kpi .v{font-weight:800;font-size:16px}
+  .mono{font-variant-numeric: tabular-nums; font-feature-settings:"tnum" 1;}
+  .rupee::before{content:"₹ "}
+
+  /* ORDER ROWS (grid-with-columns design) */
+  .orderRow{display:flex;gap:8px;margin:8px 0;}
+  .stickyL{position:sticky;top:100px;align-self:flex-start;min-width:248px}
+  .shared{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;border-left:8px solid var(--g800)}
+  .shared h3{margin:0 0 6px;color:var(--g800);font-size:14px}
+  .kv{display:grid;grid-template-columns:96px 1fr;gap:4px 8px;font-size:11px;line-height:1.2}
+
+  .right{flex:1;min-width:0}
+  .panel{border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden}
+
+  .head{position:sticky;top:0;background:#ffffffcc;backdrop-filter:blur(4px);z-index:5;border-bottom:1px solid var(--line)}
+  .headCols{display:grid;grid-auto-flow:column;grid-auto-columns:260px;gap:6px;padding:6px;font:600 11px/1.1 system-ui;color:var(--muted);text-transform:uppercase;white-space:nowrap}
+  .cols{display:grid;grid-auto-flow:column;grid-auto-columns:260px;gap:6px;padding:8px;overflow:auto}
+
+  .party{border:1px solid var(--line);border-radius:8px;padding:8px;background:#fff;min-width:0}
+  .partyTitle{font-size:12px;font-weight:800;color:var(--g800);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .mini{font-size:10.5px;color:var(--muted);margin:6px 0 4px}
+  .inlike{width:100%;padding:6px 8px;border:1px solid #e8efe9;border-radius:8px;background:#fafdfa;font-size:11.5px;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+  .rupee::before{content:"₹ "}
+  .mono{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+
+  /* Processes (per party, first block) */
+  .procCard{border:1px dashed #d9e9df;background:#f9fcfa;border-radius:8px;padding:6px;margin-bottom:6px}
+  .procRow{display:grid;grid-template-columns:150px 1fr;gap:4px 8px;font-size:11.5px}
+  .procName{color:var(--g800);font-weight:700;white-space:normal;overflow-wrap:anywhere}
+  .procVal{white-space:normal;overflow-wrap:anywhere}
+  .softWrap{word-break:break-word}
+  .who{font-weight:600}
+  .when{font-size:10.5px;color:#6b7c73}
+
+  /* Payments list */
+  .payList{display:flex;flex-direction:column;gap:4px}
+  .payLine{display:flex;justify-content:space-between;gap:8px}
+  .payAmt{font-weight:800}
+  .payDate{font-size:10.5px;color:#5b6b6f;white-space:nowrap}
+
+  /* Loader */
+  .loader{position:fixed;inset:0;background:#0006;backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:999}
+  .ring{width:56px;height:56px;border:5px solid #fff;border-top:5px solid #1c7a57;border-radius:50%;animation:spin 1s linear infinite;box-shadow:0 0 14px #1c7a57}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* PRINT: keep columns in ONE row, make canvas wider, no clipping */
+  @media print{
+    @page{ size: A3 landscape; margin:10mm; }
+    .nav,.toolbar{display:none !important}
+    body{background:#fff}
+    .card{box-shadow:none;border:none;padding:0}
+    .wrap{max-width:none;margin:0;padding:0}
+    .printWide{width:3000px}            /* widen canvas so all party columns fit; browser will scale */
+    .head{position:static}
+    .cols{overflow:visible !important}
+    .panel{border:none}
+    .orderRow{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+  <!-- NAV -->
+  <div class="nav">
+    <div class="nav-inner">
+      <div class="brand">Tabs</div>
+      <div class="tabs">
+        <a class="tab" href="order.html">Add Order</a>
+        <a class="tab" href="workflow.html">Workflow</a>
+        <a class="tab" href="accounts.html">Accounts</a>
+        <a class="tab active" href="reports.html">Reports</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="toolbar">
+    <div class="toolbar-inner">
+      <select id="dateBasis">
+        <option value="order">Order Date</option>
+        <option value="delivery">Delivery Date</option>
+        <option value="either">Either</option>
+      </select>
+      <input id="fromDate" type="date" />
+      <input id="toDate" type="date" />
+      <select id="statusFilter">
+        <option value="">All Status</option>
+        <option value="Pending">Pending</option>
+        <option value="Received">Received</option>
+      </select>
+      <input id="minPending" type="number" min="0" step="1" placeholder="Pending ≥" />
+      <input id="searchQ" type="text" placeholder="Search (Sr/Party/Product/Sheet)" />
+      <button class="btn btn-primary" id="downloadPdfBtn">Download PDF</button>
+      <button class="btn btn-soft" id="downloadCsvLedgerBtn">CSV Ledger</button>
+      <button class="btn btn-soft" id="downloadCsvPaymentsBtn">CSV Payments</button>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="wrap">
+    <div class="card printWide"><!-- printWide widens only for print -->
+      <h2 class="title">Reports</h2>
+      <p class="sub"></p>
+
+      <!-- KPIs -->
+      <div class="kpis" id="kpis"></div>
+
+      <!-- ORDERS HOST -->
+      <div id="ordersHost"></div>
+
+      <div id="status" class="status"></div>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader" id="loader"><div class="ring"></div></div>
+
+<script>
+/* ====== CONFIG ====== */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby3vEHMfmF6D2z-WVnFIouMNeaccHd-54dTbOzMfAAERi5vER4UcDO8sugSFoMJbnQt/exec";
+const API_TOKEN  = ""; // optional
+const RENDER_PER_FRAME = 2; // orders rendered per frame
+
+/* ====== STATE ====== */
+let ACC_ROWS = [];     // accounts rows (flat)
+let JOINED   = [];     // line-level (for filters / csv)
+let ORDERS   = [];     // order-level (for UI rows)
+
+/* ====== UTILS ====== */
+const el = id => document.getElementById(id);
+const showLoader = ()=> el('loader').style.display='flex';
+const hideLoader = ()=> el('loader').style.display='none';
+const setStatus = (m, ok=true)=>{ el('status').style.color = ok?'green':'red'; el('status').textContent = m; };
+const pad2 = n => String(n).padStart(2,'0');
+const ymd = d => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+const onlyDateStr = v => {
+  if (!v) return "";
+  if (typeof v === 'string' && v.includes('T')) return v.split('T')[0];
+  if (v instanceof Date && !isNaN(v)) return ymd(v);
+  return String(v);
+};
+const sum = arr => arr.reduce((a,n)=> a + (Number(n)||0), 0);
+const rupee = n => (Number(n)||0).toString();
+
+/* Soft-wrap the long label */
+function softLabel(name){
+  if (!name) return '';
+  return String(name).replace(/Lamination\/UV Coating/gi, 'Lamination/<wbr>UV Coating');
+}
+
+/* Parse "Name | Expected: YYYY-MM-DD" -> { staff, date } (report shows date alone below name) */
+function parseProcessCell(txt){
+  const s = String(txt||'').trim();
+  if (!s) return { staff:'', date:'' };
+  const m = s.match(/Expected:\s*(\d{4}-\d{2}-\d{2})/i);
+  const date = m ? m[1] : '';
+  const staff = s.split('|')[0].trim();
+  return { staff, date };
+}
+
+/* ====== API ====== */
+async function api(action, params={}){
+  const payload = { action, token: API_TOKEN, ...params };
+  const body = new URLSearchParams({ payload: JSON.stringify(payload) });
+  const res = await fetch(SCRIPT_URL, { method:'POST', body });
+  const txt = await res.text();
+  let j; try{ j = JSON.parse(txt); } catch(e){ throw new Error('Invalid JSON: '+txt); }
+  if (!j.success) throw new Error(j.message || 'Request failed');
+  return j;
+}
+
+/* ====== LOAD BOTH ====== */
+async function loadAll(){
+  showLoader();
+  try{
+    const [acc, ord] = await Promise.all([
+      api('getAccountsDataPaged', { page:1, pageSize:100000, showReceived:true }),
+      api('getOrdersForReports')
+    ]);
+
+    // Map Orders rows (with processes) by Sr|Party|Product
+    const ordMap = new Map();
+    (ord.rows || []).forEach(o=>{
+      const key = `${o.srNo}||${o.party}||${o.product}`;
+      ordMap.set(key, o);
+    });
+
+    // ACC flat rows + join to get per-party processes from Orders
+    ACC_ROWS = (acc.rows || []).map(r => {
+      const key = `${r.srNo}||${r.party||''}||${r.product||''}`;
+      const oo = ordMap.get(key);
+      return {
+        srNo: String(r.srNo||'').trim(),
+        party: String(r.party||'').trim(),
+        product: String(r.product||'').trim(),
+        orderDt: r.orderDt ? onlyDateStr(r.orderDt) : '',
+        delivDt: r.delivDt ? onlyDateStr(r.delivDt) : '',
+        sheetNm: r.sheetNm||'', sheetSz: r.sheetSz||'', qual: r.qual||'', qty: r.qty||'',
+        total: Number(r.totalAmt||0),
+        received: Number(r.sumReceived||0),
+        pending: Number(r.pending||Math.max(0,(r.totalAmt||0)-(r.sumReceived||0))),
+        status: r.status || (Number(r.pending||0)===0 ? 'Received' : 'Pending'),
+        payments: Array.isArray(r.payments) ? r.payments.map(p=>({ amount:Number(p.amount||0), dateStr:String(p.dateStr||'') })) : [],
+        processes: (oo && oo.processes) ? oo.processes : {},
+        orderFields: (oo && oo.orderFields) ? oo.orderFields : {
+          "Sr. No.": r.srNo, "Sheet Name": r.sheetNm, "Order Date": r.orderDt,
+          "Sheet Size": r.sheetSz, "Quality (mm)": r.qual, "Quantity": r.qty
+        }
+      };
+    });
+
+    JOINED = ACC_ROWS.slice();
+    buildOrdersFromLines(JOINED);
+    renderAll();
+    setStatus(`Loaded ${ORDERS.length} orders, ${JOINED.length} lines`);
+  } catch(e){
+    setStatus('❌ ' + e.message, false);
+  } finally {
+    hideLoader();
+  }
+}
+
+/* ====== FILTERS ====== */
+function inRange(line, basis, from, to){
+  const o = line.orderDt ? new Date(line.orderDt+'T00:00:00') : null;
+  const d = line.delivDt ? new Date(line.delivDt+'T00:00:00') : null;
+  const ok = (dt) => (!from || dt >= from) && (!to || dt <= to);
+  if (basis === 'order')    return o && ok(o);
+  if (basis === 'delivery') return d && ok(d);
+  const oOK = o && ok(o), dOK = d && ok(d);
+  return oOK || dOK;
+}
+
+function filterLines(){
+  const basis = el('dateBasis').value;
+  const fd = el('fromDate').value ? new Date(el('fromDate').value+'T00:00:00') : null;
+  const td = el('toDate').value ? new Date(el('toDate').value+'T23:59:59') : null;
+  const statusF = el('statusFilter').value || '';
+  const minP = el('minPending').value === '' ? null : Number(el('minPending').value||0);
+  const q = (el('searchQ').value || '').toLowerCase();
+
+  return JOINED.filter(L=>{
+    if ((fd || td) && !inRange(L, basis, fd, td)) return false;
+    if (statusF && L.status !== statusF) return false;
+    if (minP !== null && L.pending < minP) return false;
+    if (q){
+      const hay = [L.srNo, L.party, L.product, L.orderFields["Sheet Name"]||''].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+}
+
+function buildOrdersFromLines(lines){
+  const bySr = new Map();
+  lines.forEach(L=>{
+    if (!bySr.has(L.srNo)){
+      bySr.set(L.srNo, {
+        srNo: L.srNo,
+        rowColor: '#d7eadf',
+        shared: {
+          "Sr. No.": L.orderFields["Sr. No."],
+          "Sheet Name": L.orderFields["Sheet Name"],
+          "Order Date": L.orderFields["Order Date"],
+          "Sheet Size": L.orderFields["Sheet Size"],
+          "Quality (mm)": L.orderFields["Quality (mm)"],
+          "Quantity": L.orderFields["Quantity"]
+        },
+        parties: []
+      });
+    }
+    bySr.get(L.srNo).parties.push({
+      party: L.party, product: L.product,
+      delivDt: L.delivDt,
+      total: L.total, received: L.received, pending: L.pending, status: L.status,
+      payments: L.payments,
+      processes: L.processes || {}
+    });
+  });
+  ORDERS = Array.from(bySr.values())
+    .map(o=> ({ ...o, parties: o.parties.sort((a,b)=> a.party.localeCompare(b.party)) }))
+    .sort((a,b)=> Number(a.srNo)-Number(b.srNo));
+}
+
+/* ====== KPIs ====== */
+function renderKPIs(lines){
+  const uniqueSr = Array.from(new Set(lines.map(x=> x.srNo))).length; // unique orders
+  const total = sum(lines.map(x=>x.total));
+  const recv  = sum(lines.map(x=>x.received));
+  const pend  = sum(lines.map(x=>x.pending));
+  const pct   = total ? Math.round((recv/total)*100) : 0;
+  el('kpis').innerHTML = `
+    <div class="kpi"><h4>Total Orders</h4><div class="v mono">${uniqueSr}</div></div>
+    <div class="kpi"><h4>Total Amount</h4><div class="v mono rupee">${rupee(total)}</div></div>
+    <div class="kpi"><h4>Total Received</h4><div class="v mono rupee">${rupee(recv)}</div></div>
+    <div class="kpi"><h4>Total Pending</h4><div class="v mono rupee">${rupee(pend)}</div></div>
+    <div class="kpi"><h4>% Collected</h4><div class="v mono">${pct}%</div></div>
+  `;
+}
+
+/* ====== DOM BUILDERS ====== */
+function sharedCard(o){
+  const wr = document.createElement('div'); wr.className='stickyL';
+  wr.innerHTML = `
+    <div class="shared" style="border-left-color:${o.rowColor}">
+      <h3>Order ${o.srNo}</h3>
+      <div class="kv">
+        <div>Sr. No.</div><div>${o.shared['Sr. No.']||''}</div>
+        <div>Job Name</div><div>${o.shared['Sheet Name']||''}</div>
+        <div>Order Date</div><div>${o.shared['Order Date']||''}</div>
+        <div>Sheet Size</div><div>${o.shared['Sheet Size']||''}</div>
+        <div>Quality (gsm)</div><div>${o.shared['Quality (mm)']||''}</div>
+        <div>Quantity</div><div>${o.shared['Quantity']||''}</div>
+      </div>
+    </div>`;
+  return wr;
+}
+
+function partyHeader(o){
+  const hd = document.createElement('div'); hd.className='head';
+  const hc = document.createElement('div'); hc.className='headCols';
+  o.parties.forEach(p=>{
+    const d=document.createElement('div');
+    d.textContent = p.party + (p.product?` (${p.product})`:'');
+    hc.appendChild(d);
+  });
+  hd.appendChild(hc); return hd;
+}
+
+function partyProcessesCard(procs){
+  const card = document.createElement('div'); card.className='procCard';
+  const names = Object.keys(procs||{});
+  if (!names.length){ card.textContent = '—'; return card; }
+  names.forEach(n=>{
+    const row = document.createElement('div'); row.className='procRow';
+    const left = document.createElement('div'); left.className='procName mono softWrap'; left.innerHTML = softLabel(n);
+    const right = document.createElement('div'); right.className='procVal';
+    const { staff, date } = parseProcessCell(procs[n]);
+    const who = document.createElement('div'); who.className='who';  who.textContent = staff || '';
+    const when= document.createElement('div'); when.className='when'; when.textContent = date || '';
+    right.append(who, when);
+    row.append(left, right);
+    card.appendChild(row);
+  });
+  return card;
+}
+
+function partyCol(p){
+  const col = document.createElement('div'); col.className='party';
+  const title = document.createElement('div'); title.className='partyTitle';
+  title.textContent = p.party + (p.product?` (${p.product})`:'');
+  col.appendChild(title);
+
+  // Processes first (per party)
+  col.appendChild(partyProcessesCard(p.processes||{}));
+
+  if (p.delivDt){
+    const l=document.createElement('div'); l.className='mini'; l.textContent='Delivery Date';
+    const v=document.createElement('div'); v.className='inlike mono'; v.textContent=p.delivDt;
+    col.append(l,v);
+  }
+
+  const lt=document.createElement('div'); lt.className='mini'; lt.textContent='Total Amount';
+  const tv=document.createElement('div'); tv.className='inlike mono rupee'; tv.textContent=rupee(p.total);
+  col.append(lt,tv);
+
+  const lr=document.createElement('div'); lr.className='mini'; lr.textContent='Amount Received';
+  const list=document.createElement('div'); list.className='inlike payList';
+  const pays = Array.isArray(p.payments) ? p.payments : [];
+  if (!pays.length){
+    const empty = document.createElement('div'); empty.style.color='#889692'; empty.textContent='—';
+    list.appendChild(empty);
+  } else {
+    pays.forEach(px=>{
+      const line = document.createElement('div'); line.className='payLine';
+      const amt = document.createElement('div'); amt.className='payAmt mono rupee'; amt.textContent = rupee(px.amount);
+      const date = document.createElement('div'); date.className='payDate mono'; date.textContent = px.dateStr || '--/--/----';
+      line.append(amt,date); list.append(line);
+    });
+  }
+  col.append(lr,list);
+
+  const lp=document.createElement('div'); lp.className='mini'; lp.textContent='Pending';
+  const pv=document.createElement('div'); pv.className='inlike mono rupee'; pv.textContent=rupee(p.pending);
+  col.append(lp,pv);
+
+  const ls=document.createElement('div'); ls.className='mini'; ls.textContent='Status';
+  const sv=document.createElement('div'); sv.className='inlike mono'; sv.textContent=p.status;
+  col.append(ls,sv);
+
+  return col;
+}
+
+function renderOrder(o){
+  const row = document.createElement('div'); row.className='orderRow';
+  row.appendChild(sharedCard(o));
+  const right=document.createElement('div'); right.className='right';
+  const grid=document.createElement('div'); grid.className='panel';
+  const header = partyHeader(o);
+  const cols = document.createElement('div'); cols.className='cols';
+  o.parties.forEach(p=> cols.appendChild(partyCol(p)));
+  grid.append(header, cols);
+  right.appendChild(grid);
+  row.appendChild(right);
+  return row;
+}
+
+function renderOrdersChunk(groups){
+  const host = el('ordersHost');
+  host.innerHTML = '';
+  let i = 0;
+  (function pump(){
+    const frag = document.createDocumentFragment();
+    const stop = Math.min(i + RENDER_PER_FRAME, groups.length);
+    for (; i < stop; i++){
+      frag.appendChild(renderOrder(groups[i]));
+    }
+    host.appendChild(frag);
+    if (i < groups.length) requestAnimationFrame(pump);
+  })();
+}
+
+/* ====== RENDER ALL ====== */
+function renderAll(){
+  const lines = filterLines();
+  buildOrdersFromLines(lines);
+  renderKPIs(lines);
+  renderOrdersChunk(ORDERS);
+}
+
+/* ====== EXPORTS ====== */
+function csvEscape(s){ if (s == null) return ''; s = String(s); if (s.includes('"')||s.includes(',')||s.includes('\n')) return `"${s.replace(/"/g,'""')}"`; return s; }
+function downloadBlob(name, mime, text){
+  const blob = new Blob([text], { type: mime });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = name; a.click();
+  setTimeout(()=> URL.revokeObjectURL(url), 1000);
+}
+function buildFilename(prefix){
+  const basis = el('dateBasis').value;
+  const f = el('fromDate').value || 'all';
+  const t = el('toDate').value || 'all';
+  return `${prefix}_${basis}_${f}_to_${t}`;
+}
+
+function exportCsvLedger(){
+  const lines = filterLines();
+  const header = ["Sr. No.","Party","Product","Order Date","Delivery Date","Total","Received","Pending","Status","Sheet Name","Sheet Size","Quality","Quantity"];
+  const rows = lines.map(r=>[
+    r.srNo,r.party,r.product,r.orderDt,r.delivDt,r.total,r.received,r.pending,r.status,
+    r.orderFields["Sheet Name"]||"", r.orderFields["Sheet Size"]||"", r.orderFields["Quality (mm)"]||"", r.orderFields["Quantity"]||""
+  ]);
+  const csv = [header, ...rows].map(line => line.map(csvEscape).join(",")).join("\n");
+  downloadBlob(buildFilename("Ledger") + ".csv", "text/csv;charset=utf-8", csv);
+}
+
+function exportCsvPayments(){
+  const lines = filterLines();
+  const header = ["Date","Sr. No.","Party","Product","Amount"];
+  const rows = [];
+  lines.forEach(r=>{
+    (r.payments||[]).forEach(p=>{
+      rows.push([p.dateStr || "--/--/----", r.srNo, r.party, r.product, Number(p.amount||0)]);
+    });
+  });
+  const csv = [header, ...rows].map(line => line.map(csvEscape).join(",")).join("\n");
+  downloadBlob(buildFilename("Payments") + ".csv", "text/csv;charset=utf-8", csv);
+}
+function exportPdf(){ window.print(); }
+
+/* ====== EVENTS ====== */
+function hookFilters(){
+  ["dateBasis","fromDate","toDate","statusFilter"].forEach(id=>{
+    el(id).addEventListener('change', renderAll);
+  });
+  el('minPending').addEventListener('input', renderAll);
+  el('searchQ').addEventListener('input', renderAll);
+  el('downloadCsvLedgerBtn').addEventListener('click', exportCsvLedger);
+  el('downloadCsvPaymentsBtn').addEventListener('click', exportCsvPayments);
+  el('downloadPdfBtn').addEventListener('click', exportPdf);
+}
+
+/* ====== INIT ====== */
+document.addEventListener('DOMContentLoaded', async ()=>{
+  hookFilters();
+  await loadAll();
+});
+</script>
+</body>
+</html>

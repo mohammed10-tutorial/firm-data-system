@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Workflow</title>
+<style>
+  :root{ --g900:#0f3d2e; --g800:#145a41; --g700:#1c7a57; --bg:#f6fbf8; --card:#fff; --ink:#1a2421; --muted:#5b6b6f; --line:#e5efe8; --soft:#eef8f2; }
+  *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink)}
+
+  /* NAV */
+  .nav{position:sticky;top:0;background:#ffffffcc;backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:50}
+  .nav-inner{max-width:1200px;margin:0 auto;padding:10px 16px;display:flex;gap:10px;align-items:center}
+  .brand{font-weight:800;color:var(--g800);margin-right:8px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .tab{border:1px solid #d7eadf;background:var(--card);color:var(--g800);padding:8px 14px;border-radius:999px;font-weight:600;text-decoration:none}
+  .tab.active{background:var(--g800);color:#fff;border-color:var(--g800)}
+
+  /* STICKY TOOLBAR */
+  .toolbar{position:sticky;top:56px;z-index:40;background:#ffffffcc;border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
+  .toolbar-inner{max-width:1200px;margin:0 auto;padding:10px 16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center}
+  .toolbar select,.toolbar input{padding:6px 10px;border:1px solid #cfe7da;border-radius:10px;background:#fff;font-size:13px}
+  .btn{appearance:none;border:none;border-radius:12px;padding:8px 12px;font-weight:700;cursor:pointer}
+  .btn-primary{background:#1c7a57;color:#fff}
+
+  .wrap{max-width:1200px;margin:14px auto;padding:0 16px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;box-shadow:0 8px 24px rgba(16,45,32,.06)}
+  h2.title{text-align:center;font-size:24px;margin:0 0 10px;color:var(--g900)}
+  .sub{text-align:center;margin:0 0 12px;color:var(--muted);font-size:13px}
+  .status{margin-top:10px;text-align:center;font-weight:700}
+
+  .orderWrap{display:flex;gap:12px;margin-bottom:14px}
+  .stickyL{position:sticky;top:112px;align-self:flex-start}
+  .shared{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;min-width:272px}
+  .shared h3{margin:0 0 8px;color:var(--g800)}
+  .kv{display:grid;grid-template-columns:110px 1fr;gap:6px 10px;font-size:12px}
+
+  .scroll{overflow-x:auto}
+  .cols{display:flex;gap:10px;min-height:160px}
+  /* Party column width tightened to content */
+  .party{min-width:460px;max-width:520px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;flex:1}
+  .party-head{font-weight:700;color:var(--g800);margin-bottom:6px}
+
+  /* compact process row; "Other" below the select */
+  .procRow{
+    display:grid;
+    grid-template-columns: 120px minmax(150px,1fr) 140px; /* Process | Select | Date */
+    grid-template-rows: auto auto; /* second row for Other */
+    grid-template-areas:
+      "proc select date"
+      ". other  other";
+    gap:6px; align-items:center;
+    background:var(--soft);
+    border:1px dashed #cfe7da;
+    border-radius:8px; padding:4px 6px; margin-bottom:6px; font-size:12px;
+  }
+  .procName{ grid-area: proc; font-weight:700; color:var(--g800); white-space:normal; overflow-wrap:anywhere; }
+  .procRow select{ grid-area: select; width:100%; padding:6px 8px; font-size:12px }
+  .procRow .expected{ grid-area: date; width:100%; padding:6px 8px; font-size:12px }
+  .procRow .other{ grid-area: other; width:100%; padding:6px 8px; font-size:12px; display:none }
+
+  .deliver{margin-top:6px;display:flex;justify-content:center}
+  .deliver .btn-primary{ padding:6px 10px; font-size:12px }
+
+  /* Loader */
+  .loader{position:fixed;inset:0;background:#0006;backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:999}
+  .ring{width:56px;height:56px;border:5px solid #fff;border-top:5px solid #1c7a57;border-radius:50%;animation:spin 1s linear infinite;box-shadow:0 0 14px #1c7a57}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+  <!-- NAV -->
+  <div class="nav">
+    <div class="nav-inner">
+      <div class="brand">Tabs</div>
+      <div class="tabs">
+        <a class="tab" href="order.html">Add Order</a>
+        <a class="tab active" href="workflow.html">Workflow</a>
+        <a class="tab" href="accounts.html">Accounts</a>
+        <a class="tab" href="reports.html">Reports</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- STICKY FILTERS / ACTIONS -->
+  <div class="toolbar">
+    <div class="toolbar-inner">
+      <label>Sort by Sr. No.</label>
+      <select id="sortSr"></select>
+
+      <input type="text" id="filterParty" placeholder="Search Party" />
+      <select id="filterProcess">
+        <option value="">All Processes</option>
+        <option>Paper</option> <!-- NEW filter option -->
+        <option>Printing</option><option>Lamination/UV Coating</option><option>Cutting</option>
+        <option>Half Cutting</option><option>Punching</option><option>Leaf Printing</option>
+        <option>Binding</option><option>Pasting</option><option>Deliver</option>
+      </select>
+      <select id="filterStaff">
+        <option value="">All Staff</option>
+      </select>
+
+      <button class="btn btn-primary" id="saveBtn">Save Updates</button>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <h2 class="title">Workflow</h2>
+      <p class="sub">Assign and set “Expected date”, then press <strong>Save Updates</strong></p>
+
+      <!-- Orders area -->
+      <div id="ordersArea"></div>
+
+      <div id="status" class="status"></div>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader" id="loader"><div class="ring"></div></div>
+
+<script>
+/* ====== CONFIG ====== */
+/* paste your Apps Script /exec URL */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby3vEHMfmF6D2z-WVnFIouMNeaccHd-54dTbOzMfAAERi5vER4UcDO8sugSFoMJbnQt/exec";
+/* include Paper at the top so it renders first */
+const processes = [
+  "Paper", // NEW
+  "Printing","Lamination/UV Coating","Cutting","Half Cutting",
+  "Punching","Leaf Printing","Binding","Pasting","Deliver"
+];
+
+/* ====== STATE ====== */
+let staffList = [];
+let allOrders = [];     // [{srNo, shared:{}, parties:[{row, Party Name, Product, processes:{...}}]}]
+let changeBuffer = [];  // {row, updates:{process: "Name | Expected: YYYY-MM-DD" or "Name"}}
+
+/* ====== UI HELPERS ====== */
+function el(id){ return document.getElementById(id); }
+function showLoader(){ el('loader') && (el('loader').style.display='flex'); }
+function hideLoader(){ el('loader') && (el('loader').style.display='none'); }
+function setStatus(msg, ok = true){ const s = el('status'); if (!s) return; s.style.color = ok ? 'green' : 'red'; s.textContent = msg; }
+
+function getOrderByRow(row){
+  for (const o of allOrders){
+    for (const p of o.parties){ if (p.row === row) return { order:o, party:p }; }
+  }
+  return null;
+}
+
+/* ====== QUEUE & PARSE ====== */
+function queueChange(row, process, value){
+  const hit = changeBuffer.find(x => x.row === row);
+  if (hit) hit.updates[process] = value;
+  else changeBuffer.push({ row, updates: { [process]: value } });
+}
+function mergeAssigneeAndExpected(row, process, selectedName, expectedDate){
+  let text = selectedName || '';
+  if (expectedDate) { if (text) text += ' | '; text += 'Expected: ' + expectedDate; }
+  if (!text) return; // don’t write empty
+  queueChange(row, process, text);
+}
+function parseExpected(str){
+  if (!str) return { name:'', expected:'' };
+  const m = String(str).match(/Expected:\s*(\d{4}-\d{2}-\d{2})/);
+  const expected = m ? m[1] : '';
+  let name = String(str).split('|')[0].trim();
+  if (/^done by/i.test(name) || /^expected:/i.test(name)) name = '';
+  return { name, expected };
+}
+
+/* ====== RENDER ====== */
+function renderOrders(){
+  const area = el('ordersArea'); if (!area) return;
+  area.innerHTML = '';
+
+  const srFilter   = el('sortSr')?.value || '';
+  const partyQuery = (el('filterParty')?.value || '').toLowerCase();
+  const procFilter = el('filterProcess')?.value || '';
+  const staffFilter= el('filterStaff')?.value || '';
+
+  const orders = allOrders.filter(o => !srFilter || String(o.srNo) === String(srFilter));
+
+  orders.forEach(order => {
+    const wrap = document.createElement('div'); wrap.className = 'orderWrap'; wrap.dataset.sr = order.srNo;
+
+    // left shared
+    const left = document.createElement('div'); left.className = 'stickyL';
+    left.innerHTML = `
+      <div class="shared">
+        <h3>Order ${order.srNo}</h3>
+        <div class="kv">
+          <div>Sr. No.</div><div>${order.shared['Sr. No.']||''}</div>
+          <div>Job Name</div><div>${order.shared['Sheet Name']||''}</div>
+          <div>Order Date</div><div>${order.shared['Order Date']||''}</div>
+          <div>Sheet Size</div><div>${order.shared['Sheet Size']||''}</div>
+          <div>Quality (gsm)</div><div>${order.shared['Quality (mm)']||''}</div>
+          <div>Quantity</div><div>${order.shared['Quantity']||''}</div>
+        </div>
+      </div>`;
+    wrap.appendChild(left);
+
+    // party columns
+    const scroll = document.createElement('div'); scroll.className = 'scroll';
+    const cols = document.createElement('div'); cols.className = 'cols';
+
+    const visibleParties = order.parties
+      .filter(p => !partyQuery || String(p['Party Name']||'').toLowerCase().includes(partyQuery))
+      .filter(p => {
+        if (!staffFilter) return true;
+        return processes.some(proc => {
+          const v = p.processes[proc] || '';
+          return v === staffFilter || v.includes(staffFilter);
+        });
+      });
+
+    visibleParties.forEach(party => {
+      const col = document.createElement('div');
+      col.className = 'party';
+      col.dataset.row = party.row;
+      col.innerHTML = `<div class="party-head">${party['Party Name']||''} (${party['Product']||''})</div>`;
+
+      processes.forEach(proc => {
+        if (procFilter && proc !== procFilter) return;
+        const current = parseExpected(party.processes[proc] || '');
+
+        const rowEl = document.createElement('div');
+        rowEl.className = 'procRow';
+        rowEl.innerHTML = `
+          <span class="procName">${proc.replace('Lamination/UV Coating','Lamination/<wbr>UV Coating')}</span>
+          <select class="assignee"><option value="">-- Select --</option></select>
+          <input type="date" class="expected" />
+          <input class="other" placeholder="Other name"/>
+        `;
+
+        const sel = rowEl.querySelector('select.assignee');
+        const other = rowEl.querySelector('.other');
+        const exp = rowEl.querySelector('.expected');
+
+        // staff options
+        staffList.forEach(n => {
+          const o = document.createElement('option');
+          o.value = n; o.textContent = n;
+          if (current.name && current.name === n) o.selected = true;
+          sel.appendChild(o);
+        });
+        // Other…
+        const optOther = document.createElement('option');
+        optOther.value = "__other__"; optOther.textContent = "Other…";
+        sel.appendChild(optOther);
+
+        // expected date
+        if (current.expected) exp.value = current.expected;
+
+        // if saved name not in list -> Other below
+        if (current.name && !staffList.includes(current.name)) {
+          sel.value = "__other__";
+          other.style.display = 'block';
+          other.value = current.name;
+        }
+
+        sel.addEventListener('change', () => {
+          const name = (sel.value === "__other__") ? other.value : sel.value;
+          const date = exp.value || '';
+          other.style.display = (sel.value === "__other__") ? 'block' : 'none';
+          mergeAssigneeAndExpected(party.row, proc, name, date);
+        });
+        other.addEventListener('input', () => {
+          if (sel.value !== "__other__") return;
+          mergeAssigneeAndExpected(party.row, proc, other.value, exp.value || '');
+        });
+        exp.addEventListener('change', () => {
+          const name = (sel.value === "__other__") ? other.value : sel.value;
+          mergeAssigneeAndExpected(party.row, proc, name, exp.value || '');
+        });
+
+        col.appendChild(rowEl);
+      });
+
+      // Deliver this party
+      const wrapBtn = document.createElement('div'); wrapBtn.className = 'deliver';
+      const dbtn = document.createElement('button'); dbtn.className = 'btn btn-primary'; dbtn.textContent = 'Deliver ✅';
+      dbtn.onclick = () => deliverParty(party.row, order.srNo, order.shared['Sheet Name']||'', party['Party Name']||'');
+      wrapBtn.appendChild(dbtn); col.appendChild(wrapBtn);
+
+      cols.appendChild(col);
+    });
+
+    scroll.appendChild(cols);
+    wrap.appendChild(scroll);
+    area.appendChild(wrap);
+
+    if (!visibleParties.length) wrap.style.display = 'none';
+  });
+}
+
+/* ====== SAVE / DELIVER ====== */
+async function saveUpdates(){
+  if (!changeBuffer.length){ setStatus('Nothing to save'); return; }
+  showLoader();
+  try{
+    const payload = { action:'updateWorkflowBatch', items: changeBuffer };
+    const body = new URLSearchParams({ payload: JSON.stringify(payload) });
+    const res = await fetch(SCRIPT_URL, { method:'POST', body });
+    const j = await res.json();
+    if (!j.success) throw new Error(j.message || 'update failed');
+
+    // sync memory
+    changeBuffer.forEach(ch => {
+      const hit = getOrderByRow(ch.row);
+      if (!hit) return;
+      for (const k in ch.updates){
+        hit.party.processes[k] = ch.updates[k];
+      }
+    });
+    changeBuffer = [];
+    setStatus('✅ Saved updates');
+  } catch(err){
+    setStatus('❌ ' + err.message, false);
+  } finally {
+    hideLoader();
+  }
+}
+
+async function deliverParty(row, srNo, sheetName, partyName){
+  if (!confirm(`Deliver ${partyName}?`)) return;
+  showLoader();
+  try{
+    const payload = { action:'deliverParty', row, srNo, sheetName, partyName };
+    const body = new URLSearchParams({ payload: JSON.stringify(payload) });
+    const res = await fetch(SCRIPT_URL, { method:'POST', body });
+    const j = await res.json();
+    if (!j.success) throw new Error(j.message || 'deliver failed');
+
+    // remove this party from UI + memory
+    const hit = getOrderByRow(row);
+    if (hit){
+      hit.order.parties = hit.order.parties.filter(p => p.row !== row);
+      if (hit.order.parties.length === 0){
+        allOrders = allOrders.filter(o => o.srNo !== hit.order.srNo);
+        const wrap = document.querySelector(`.orderWrap[data-sr="${hit.order.srNo}"]`);
+        if (wrap) wrap.remove();
+      } else {
+        const card = document.querySelector(`.party[data-row="${row}"]`);
+        if (card) card.remove();
+      }
+    }
+
+    setStatus('Delivered ' + partyName);
+  } catch(err){
+    setStatus('❌ ' + err.message, false);
+  } finally {
+    hideLoader();
+  }
+}
+
+/* ====== LOAD ALL PENDING ====== */
+async function loadAllPending(){
+  showLoader();
+  try{
+    const body = new URLSearchParams({ payload: JSON.stringify({ action:'getPendingWorkflow' }) });
+    const res = await fetch(SCRIPT_URL, { method:'POST', body });
+    const text = await res.text();
+    let data; try{ data = JSON.parse(text); } catch(e){ throw new Error('Invalid JSON from backend: ' + text); }
+    if (!data.success) throw new Error(data.message || 'load failed');
+
+    staffList = data.staff || [];
+    allOrders = data.orders || [];
+
+    // Build filters
+    const sortSr = el('sortSr');
+    sortSr.innerHTML = '<option value="">All</option>' + (allOrders.map(o => `<option>${o.srNo}</option>`).join(''));
+    sortSr.onchange = renderOrders;
+
+    const fs = el('filterStaff');
+    fs.innerHTML = '<option value="">All Staff</option>' + staffList.map(n => `<option>${n}</option>`).join('');
+    fs.onchange = renderOrders;
+
+    el('filterParty').oninput = renderOrders;
+    el('filterProcess').onchange = renderOrders;
+
+    el('saveBtn').onclick = saveUpdates;
+
+    renderOrders();
+    setStatus('Loaded pending workflow');
+  } catch(err){
+    setStatus('❌ ' + err.message, false);
+  } finally {
+    hideLoader();
+  }
+}
+
+/* ====== INIT ====== */
+document.addEventListener('DOMContentLoaded', loadAllPending);
+</script>
+</body>
+</html>

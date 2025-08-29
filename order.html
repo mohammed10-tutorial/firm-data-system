@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Add Order</title>
+<style>
+  :root{
+    --g900:#0f3d2e; --g800:#145a41; --g700:#1c7a57; --g200:#e9f6ef;
+    --bg:#f6fbf8; --card:#fff; --ink:#1a2421; --muted:#5b6b6f;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink)}
+  .nav{position:sticky;top:0;background:#ffffffcc;backdrop-filter:blur(8px);border-bottom:1px solid #e5efe8}
+  .nav-inner{max-width:1100px;margin:0 auto;padding:10px 16px;display:flex;gap:10px;align-items:center}
+  .brand{font-weight:800;color:var(--g800);margin-right:8px}
+  .tabs{display:flex;gap:8px;flex-wrap:wrap}
+  .tab{border:1px solid #d7eadf;background:var(--card);color:var(--g800);
+       padding:8px 14px;border-radius:999px;font-weight:600;text-decoration:none}
+  .tab:hover{border-color:#c7e3d3}
+  .tab.active{background:var(--g800);color:#fff;border-color:var(--g800)}
+  .wrap{max-width:1000px;margin:22px auto;padding:0 16px}
+  .card{background:var(--card);border:1px solid #e5efe8;border-radius:14px;
+        padding:20px;box-shadow:0 8px 24px rgba(16,45,32,.06)}
+  .title{text-align:center;font-size:26px;margin:0 0 12px;color:var(--g900)} 
+  .sub{text-align:center;margin:0 0 20px;color:var(--muted);font-size:15px}
+  .grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+  .col-4{grid-column:span 4} .col-6{grid-column:span 6} .col-12{grid-column:span 12}
+  @media (max-width:780px){.col-4,.col-6,.col-12{grid-column:span 12}}
+  label{font-weight:600;font-size:13px;color:#26453a;display:block;margin-bottom:6px}
+  input{width:100%;padding:10px 12px;border:1px solid #cfe7da;border-radius:10px;background:#fff;font-size:14px}
+  input:focus{outline:none;border-color:var(--g700);box-shadow:0 0 0 3px #cdeedd}
+  .row{background:var(--g200);border:1px dashed #bfe5cf;border-radius:12px;padding:12px;margin-bottom:10px}
+  .row-title{font-weight:700;color:var(--g800);margin-bottom:8px}
+  .actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px;justify-content:center}
+  .btn{appearance:none;border:none;border-radius:12px;padding:12px 18px;font-weight:700;cursor:pointer}
+  .btn-primary{background:var(--g700);color:#fff;font-size:16px}
+  .btn-primary:hover{background:var(--g800)}
+  .btn-ghost{background:#fff;color:var(--g800);border:1px solid #cfe7da}
+  .btn-ghost:hover{border-color:var(--g700)}
+  .alert{display:none;margin-top:14px;padding:12px;border-radius:10px;font-weight:700;text-align:center;white-space:pre-line}
+  .alert.ok{display:block;background:#dff5e7;color:#0b3d2e;border:1px solid #bfe8d0}
+  .alert.err{display:block;background:#ffe2e2;color:#7a1e1e;border:1px solid #f4bcbc}
+  .loader-overlay{position:fixed;inset:0;background:#00000055;backdrop-filter:blur(6px);
+                  display:flex;align-items:center;justify-content:center;z-index:999;display:none}
+  .ring{width:80px;height:80px;border:6px solid #fff;border-top:6px solid #1c7a57;
+        border-radius:50%;animation:spin 1s linear infinite;box-shadow:0 0 20px #1c7a57}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+  <!-- NAV -->
+  <div class="nav">
+    <div class="nav-inner">
+      <div class="brand">Tabs </div>
+      <div class="tabs">
+        <a class="tab active" href="order.html">Add Order</a>
+        <a class="tab" href="workflow.html">Workflow</a>
+        <a class="tab" href="accounts.html">Accounts</a>
+        <a class="tab" href="reports.html">Reports</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="wrap">
+    <div class="card">
+      <h2 class="title">Add Order</h2>
+      <p class="sub">Fill Order Details</p>
+
+      <form id="orderForm">
+        <div class="grid">
+          <div class="col-4">
+            <label for="OrderDate">Order Date</label>
+            <input type="date" id="OrderDate" />
+          </div>
+          <div class="col-4">
+            <label for="SheetName">Job Name</label>
+            <input type="text" id="SheetName" placeholder="e.g., Order 101" />
+          </div>
+          <div class="col-4">
+            <label for="SheetSize">Sheet Size (No. × No.)</label>
+            <input type="text" id="SheetSize" placeholder="e.g., 12x18" />
+          </div>
+          <div class="col-4">
+            <label for="Quality">Quality (gsm)</label>
+            <input type="number" id="Quality" placeholder="e.g., 250" />
+          </div>
+          <div class="col-4">
+            <label for="Quantity">Quantity</label>
+            <input type="number" id="Quantity" placeholder="e.g., 5000" />
+          </div>
+
+          <div class="col-4">
+            <label for="NumParties">No. of Parties</label>
+            <input type="number" id="NumParties" min="1" placeholder="e.g., 3" />
+            <button type="button" id="genParties" class="btn btn-ghost" style="margin-top:8px;width:100%">Generate Party Rows</button>
+          </div>
+
+          <div class="col-12"><div id="partyRows"></div></div>
+
+          <div class="col-12">
+            <div class="actions">
+              <button type="submit" class="btn btn-primary">Submit Order</button>
+            </div>
+          </div>
+        </div>
+      </form>
+      <div id="alert" class="alert"></div>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader-overlay" id="loader"><div class="ring"></div></div>
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby3vEHMfmF6D2z-WVnFIouMNeaccHd-54dTbOzMfAAERi5vER4UcDO8sugSFoMJbnQt/exec"; // <-- paste your Apps Script /exec URL
+
+  // Prefill today's date
+  (function(){
+    const d = document.getElementById('OrderDate');
+    const now = new Date();
+    d.value = new Date(now.getTime()-now.getTimezoneOffset()*60000).toISOString().slice(0,10);
+  })();
+
+  const partyContainer = document.getElementById('partyRows');
+  const genBtn = document.getElementById('genParties');
+  const numInput = document.getElementById('NumParties');
+  const alertBox = document.getElementById('alert');
+  const form = document.getElementById('orderForm');
+  const loader = document.getElementById('loader');
+
+  function showAlert(txt, ok=true){
+    alertBox.className = 'alert ' + (ok?'ok':'err');
+    alertBox.textContent = txt;
+  }
+  function clearAlert(){ alertBox.className='alert'; alertBox.textContent=''; }
+
+  genBtn.addEventListener('click', () => {
+    clearAlert();
+    const n = parseInt(numInput.value||'0',10);
+    if (!n || n<1){ showAlert('Enter a valid number of parties (>=1)', false); return; }
+    partyContainer.innerHTML = '';
+    for (let i=1;i<=n;i++){
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `
+        <div class="row-title">Party ${i}</div>
+        <div class="grid">
+          <div class="col-6">
+            <label>Party Name</label>
+            <input type="text" data-field="Party Name" placeholder="Party ${i} name" />
+          </div>
+          <div class="col-6">
+            <label>Product</label>
+            <input type="text" data-field="Product" placeholder="Product for Party ${i}" />
+          </div>
+        </div>`;
+      partyContainer.appendChild(row);
+    }
+  });
+
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault(); clearAlert();
+
+    const common = {
+      "Order Date": document.getElementById('OrderDate').value || '',
+      "Sheet Name": document.getElementById('SheetName').value || '',
+      "Sheet Size": document.getElementById('SheetSize').value || '',
+      "Quality (mm)": document.getElementById('Quality').value || '',
+      "Quantity": document.getElementById('Quantity').value || ''
+      // If you ever add "Sr. No." for editing, include it here.
+    };
+
+    const rows = [...partyContainer.querySelectorAll('.row')];
+    if (!rows.length){ showAlert('Generate at least 1 party row.', false); return; }
+
+    const parties = rows.map(r=>{
+      const obj = {};
+      r.querySelectorAll('input[data-field]').forEach(inp=>{
+        obj[inp.getAttribute('data-field')] = inp.value || '';
+      });
+      return obj;
+    });
+
+    const payload = { action:'orderBatch', common, parties };
+    const body = new URLSearchParams({ payload: JSON.stringify(payload) });
+
+    loader.style.display = 'flex';
+    try {
+      const res = await fetch(SCRIPT_URL, { method:'POST', body });
+      const text = await res.text();
+      let json; try{ json = JSON.parse(text); } catch{ json = { success: res.ok, message: text }; }
+
+      loader.style.display = 'none';
+      if (json.success){
+        const msg = json.srNo ? `✅ Saved with Sr. No. ${json.srNo}` : "✅ Saved.";
+        showAlert(msg);
+        partyContainer.innerHTML=''; numInput.value=''; form.reset();
+      } else {
+        showAlert('❌ Failed: ' + (json.message || 'Unknown error'), false);
+      }
+    } catch(err){
+      loader.style.display = 'none';
+      showAlert('❌ Failed: ' + err.message, false);
+    }
+  });
+</script>
+</body>
+</html>
