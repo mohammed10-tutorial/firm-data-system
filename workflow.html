@@ -8,7 +8,6 @@
   :root{ --g900:#0f3d2e; --g800:#145a41; --g700:#1c7a57; --bg:#f6fbf8; --card:#fff; --ink:#1a2421; --muted:#5b6b6f; --line:#e5efe8; --soft:#eef8f2; }
   *{box-sizing:border-box} body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink)}
 
-  /* NAV */
   .nav{position:sticky;top:0;background:#ffffffcc;backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:50}
   .nav-inner{max-width:1200px;margin:0 auto;padding:10px 16px;display:flex;gap:10px;align-items:center}
   .brand{font-weight:800;color:var(--g800);margin-right:8px}
@@ -16,7 +15,6 @@
   .tab{border:1px solid #d7eadf;background:var(--card);color:var(--g800);padding:8px 14px;border-radius:999px;font-weight:600;text-decoration:none}
   .tab.active{background:var(--g800);color:#fff;border-color:var(--g800)}
 
-  /* STICKY TOOLBAR */
   .toolbar{position:sticky;top:56px;z-index:40;background:#ffffffcc;border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
   .toolbar-inner{max-width:1200px;margin:0 auto;padding:10px 16px;display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:center}
   .toolbar select,.toolbar input{padding:6px 10px;border:1px solid #cfe7da;border-radius:10px;background:#fff;font-size:13px}
@@ -29,23 +27,46 @@
   .sub{text-align:center;margin:0 0 12px;color:var(--muted);font-size:13px}
   .status{margin-top:10px;text-align:center;font-weight:700}
 
-  .orderWrap{display:flex;gap:12px;margin-bottom:14px}
-  .stickyL{position:sticky;top:112px;align-self:flex-start}
-  .shared{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;min-width:272px}
+  .orderWrap{display:flex;gap:12px;margin:14px 0;align-items:flex-start}
+  .stickyL{flex:0 0 280px;position:sticky;top:112px;align-self:flex-start;display:flex;flex-direction:column;gap:10px}
+  .shared{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
   .shared h3{margin:0 0 8px;color:var(--g800)}
   .kv{display:grid;grid-template-columns:110px 1fr;gap:6px 10px;font-size:12px}
 
+  .bulkProc{
+    background:var(--soft);
+    border:1px dashed #cfe7da;
+    border-radius:10px;
+    padding:8px;
+    font-size:12px;
+  }
+  .bulkProc select,
+  .bulkProc input{
+    width: 100%;
+    max-width: 240px;
+    padding:4px 6px;
+    font-size:12px;
+    margin:4px auto;
+    display:block;
+  }
+  .bulkProc button{
+    display:block;
+    width:100%;
+    max-width:240px;
+    margin:4px auto;
+    font-size:12px;
+    padding:4px 6px;
+  }
+
   .scroll{overflow-x:auto}
   .cols{display:flex;gap:10px;min-height:160px}
-  /* Party column width tightened to content */
   .party{min-width:460px;max-width:520px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;flex:1}
   .party-head{font-weight:700;color:var(--g800);margin-bottom:6px}
 
-  /* compact process row; "Other" below the select */
   .procRow{
     display:grid;
-    grid-template-columns: 120px minmax(150px,1fr) 140px; /* Process | Select | Date */
-    grid-template-rows: auto auto; /* second row for Other */
+    grid-template-columns: 120px minmax(150px,1fr) 140px;
+    grid-template-rows: auto auto;
     grid-template-areas:
       "proc select date"
       ". other  other";
@@ -62,14 +83,12 @@
   .deliver{margin-top:6px;display:flex;justify-content:center}
   .deliver .btn-primary{ padding:6px 10px; font-size:12px }
 
-  /* Loader */
   .loader{position:fixed;inset:0;background:#0006;backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:999}
   .ring{width:56px;height:56px;border:5px solid #fff;border-top:5px solid #1c7a57;border-radius:50%;animation:spin 1s linear infinite;box-shadow:0 0 14px #1c7a57}
   @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-  <!-- NAV -->
   <div class="nav">
     <div class="nav-inner">
       <div class="brand">Tabs</div>
@@ -82,7 +101,6 @@
     </div>
   </div>
 
-  <!-- STICKY FILTERS / ACTIONS -->
   <div class="toolbar">
     <div class="toolbar-inner">
       <label>Sort by Sr. No.</label>
@@ -91,7 +109,7 @@
       <input type="text" id="filterParty" placeholder="Search Party" />
       <select id="filterProcess">
         <option value="">All Processes</option>
-        <option>Paper</option> <!-- NEW filter option -->
+        <option>Paper</option>
         <option>Printing</option><option>Lamination/UV Coating</option><option>Cutting</option>
         <option>Half Cutting</option><option>Punching</option><option>Leaf Printing</option>
         <option>Binding</option><option>Pasting</option><option>Deliver</option>
@@ -108,38 +126,29 @@
     <div class="card">
       <h2 class="title">Workflow</h2>
       <p class="sub">Assign and set “Expected date”, then press <strong>Save Updates</strong></p>
-
-      <!-- Orders area -->
       <div id="ordersArea"></div>
-
       <div id="status" class="status"></div>
     </div>
   </div>
 
-  <!-- Loader -->
   <div class="loader" id="loader"><div class="ring"></div></div>
 
 <script>
-/* ====== CONFIG ====== */
-/* paste your Apps Script /exec URL */
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby3vEHMfmF6D2z-WVnFIouMNeaccHd-54dTbOzMfAAERi5vER4UcDO8sugSFoMJbnQt/exec";
-/* include Paper at the top so it renders first */
 const processes = [
-  "Paper", // NEW
+  "Paper",
   "Printing","Lamination/UV Coating","Cutting","Half Cutting",
   "Punching","Leaf Printing","Binding","Pasting","Deliver"
 ];
 
-/* ====== STATE ====== */
 let staffList = [];
-let allOrders = [];     // [{srNo, shared:{}, parties:[{row, Party Name, Product, processes:{...}}]}]
-let changeBuffer = [];  // {row, updates:{process: "Name | Expected: YYYY-MM-DD" or "Name"}}
+let allOrders = [];
+let changeBuffer = [];
 
-/* ====== UI HELPERS ====== */
 function el(id){ return document.getElementById(id); }
-function showLoader(){ el('loader') && (el('loader').style.display='flex'); }
-function hideLoader(){ el('loader') && (el('loader').style.display='none'); }
-function setStatus(msg, ok = true){ const s = el('status'); if (!s) return; s.style.color = ok ? 'green' : 'red'; s.textContent = msg; }
+function showLoader(){ el('loader').style.display='flex'; }
+function hideLoader(){ el('loader').style.display='none'; }
+function setStatus(msg, ok = true){ const s = el('status'); s.style.color = ok ? 'green' : 'red'; s.textContent = msg; }
 
 function getOrderByRow(row){
   for (const o of allOrders){
@@ -148,7 +157,6 @@ function getOrderByRow(row){
   return null;
 }
 
-/* ====== QUEUE & PARSE ====== */
 function queueChange(row, process, value){
   const hit = changeBuffer.find(x => x.row === row);
   if (hit) hit.updates[process] = value;
@@ -157,7 +165,6 @@ function queueChange(row, process, value){
 function mergeAssigneeAndExpected(row, process, selectedName, expectedDate){
   let text = selectedName || '';
   if (expectedDate) { if (text) text += ' | '; text += 'Expected: ' + expectedDate; }
-  if (!text) return; // don’t write empty
   queueChange(row, process, text);
 }
 function parseExpected(str){
@@ -169,22 +176,18 @@ function parseExpected(str){
   return { name, expected };
 }
 
-/* ====== RENDER ====== */
 function renderOrders(){
-  const area = el('ordersArea'); if (!area) return;
-  area.innerHTML = '';
-
-  const srFilter   = el('sortSr')?.value || '';
-  const partyQuery = (el('filterParty')?.value || '').toLowerCase();
-  const procFilter = el('filterProcess')?.value || '';
-  const staffFilter= el('filterStaff')?.value || '';
+  const area = el('ordersArea'); area.innerHTML = '';
+  const srFilter = el('sortSr').value || '';
+  const partyQuery = (el('filterParty').value || '').toLowerCase();
+  const procFilter = el('filterProcess').value || '';
+  const staffFilter= el('filterStaff').value || '';
 
   const orders = allOrders.filter(o => !srFilter || String(o.srNo) === String(srFilter));
 
   orders.forEach(order => {
     const wrap = document.createElement('div'); wrap.className = 'orderWrap'; wrap.dataset.sr = order.srNo;
 
-    // left shared
     const left = document.createElement('div'); left.className = 'stickyL';
     left.innerHTML = `
       <div class="shared">
@@ -197,10 +200,18 @@ function renderOrders(){
           <div>Quality (gsm)</div><div>${order.shared['Quality (mm)']||''}</div>
           <div>Quantity</div><div>${order.shared['Quantity']||''}</div>
         </div>
+      </div>
+      <div class="bulkProc">
+        <div style="font-weight:600; color:var(--g800); margin-bottom:4px">Bulk Tools</div>
+        <select class="bulkProcSel"><option value="">-- Process --</option>${processes.map(p=>`<option>${p}</option>`).join('')}</select>
+        <select class="bulkAssignee"><option value="">-- Select Staff --</option>${staffList.map(n=>`<option>${n}</option>`).join('')}</select>
+        <input type="date" class="bulkDate" />
+        <button class="btn btn-primary bulkApply">Apply to All</button>
+        <button class="btn bulkClear" style="background:#ccc;">Clear Process</button>
+        <button class="btn bulkDeliver" style="background:#e55353; color:#fff">Deliver All Parties</button>
       </div>`;
     wrap.appendChild(left);
 
-    // party columns
     const scroll = document.createElement('div'); scroll.className = 'scroll';
     const cols = document.createElement('div'); cols.className = 'cols';
 
@@ -237,22 +248,17 @@ function renderOrders(){
         const other = rowEl.querySelector('.other');
         const exp = rowEl.querySelector('.expected');
 
-        // staff options
         staffList.forEach(n => {
           const o = document.createElement('option');
           o.value = n; o.textContent = n;
           if (current.name && current.name === n) o.selected = true;
           sel.appendChild(o);
         });
-        // Other…
         const optOther = document.createElement('option');
         optOther.value = "__other__"; optOther.textContent = "Other…";
         sel.appendChild(optOther);
 
-        // expected date
         if (current.expected) exp.value = current.expected;
-
-        // if saved name not in list -> Other below
         if (current.name && !staffList.includes(current.name)) {
           sel.value = "__other__";
           other.style.display = 'block';
@@ -277,7 +283,6 @@ function renderOrders(){
         col.appendChild(rowEl);
       });
 
-      // Deliver this party
       const wrapBtn = document.createElement('div'); wrapBtn.className = 'deliver';
       const dbtn = document.createElement('button'); dbtn.className = 'btn btn-primary'; dbtn.textContent = 'Deliver ✅';
       dbtn.onclick = () => deliverParty(party.row, order.srNo, order.shared['Sheet Name']||'', party['Party Name']||'');
@@ -290,11 +295,77 @@ function renderOrders(){
     wrap.appendChild(scroll);
     area.appendChild(wrap);
 
-    if (!visibleParties.length) wrap.style.display = 'none';
-  });
+    // attach bulk tool actions
+    const bulkBox = wrap.querySelector('.bulkProc');
+    bulkBox.querySelector('.bulkApply').addEventListener('click', ()=>{
+      const proc = bulkBox.querySelector('.bulkProcSel').value;
+      const assignee = bulkBox.querySelector('.bulkAssignee').value;
+      const date = bulkBox.querySelector('.bulkDate').value;
+      if (!proc || !assignee) { alert("Select process and staff first"); return; }
+
+      order.parties.forEach(p=>{
+        mergeAssigneeAndExpected(p.row, proc, assignee, date);
+        const card = wrap.querySelector(`.party[data-row="${p.row}"]`);
+        if (card) {
+          const rows = card.querySelectorAll('.procRow');
+          rows.forEach(r=>{
+            if (r.querySelector('.procName').textContent.trim()===proc){
+              r.querySelector('select.assignee').value = assignee;
+              r.querySelector('input.expected').value = date;
+            }
+          });
+        }
+      });
+      setStatus(`Applied ${proc} to all parties in Order ${order.srNo}`);
+    });
+
+    bulkBox.querySelector('.bulkClear').addEventListener('click', ()=>{
+      const proc = bulkBox.querySelector('.bulkProcSel').value;
+      if (!proc) { alert("Select a process to clear"); return; }
+      if (!confirm(`Clear ${proc} for all parties in Order ${order.srNo}?`)) return;
+
+      order.parties.forEach(p=>{
+        queueChange(p.row, proc, "");
+        const card = wrap.querySelector(`.party[data-row="${p.row}"]`);
+        if (card){
+          const rows = card.querySelectorAll('.procRow');
+          rows.forEach(r=>{
+            if (r.querySelector('.procName').textContent.trim()===proc){
+              r.querySelector('select.assignee').value = "";
+              r.querySelector('input.expected').value = "";
+              r.querySelector('.other').value = "";
+              r.querySelector('.other').style.display = 'none';
+            }
+          });
+        }
+      });
+      setStatus(`Cleared ${proc} for all parties in Order ${order.srNo}`);
+    });
+
+    bulkBox.querySelector('.bulkDeliver').addEventListener('click', async ()=>{
+      if (!confirm(`Deliver ALL parties in Order ${order.srNo}?`)) return;
+      showLoader();
+      try{
+        for (const p of order.parties){
+          const payload = { action:'deliverParty', row:p.row, srNo:order.srNo, sheetName:order.shared['Sheet Name']||'', partyName:p['Party Name']||'' };
+          const body = new URLSearchParams({ payload: JSON.stringify(payload) });
+          const res = await fetch(SCRIPT_URL, { method:'POST', body });
+          const j = await res.json();
+          if (!j.success) throw new Error(j.message || 'deliver failed');
+          const card = wrap.querySelector(`.party[data-row="${p.row}"]`);
+          if (card) card.remove();
+        }
+        wrap.remove();
+        allOrders = allOrders.filter(o=>o.srNo!==order.srNo);
+        setStatus(`Delivered all parties in Order ${order.srNo}`);
+      }catch(err){
+        setStatus('❌ ' + err.message, false);
+      }finally{ hideLoader(); }
+    });
+
+  }); // end orders.forEach
 }
 
-/* ====== SAVE / DELIVER ====== */
 async function saveUpdates(){
   if (!changeBuffer.length){ setStatus('Nothing to save'); return; }
   showLoader();
@@ -304,22 +375,15 @@ async function saveUpdates(){
     const res = await fetch(SCRIPT_URL, { method:'POST', body });
     const j = await res.json();
     if (!j.success) throw new Error(j.message || 'update failed');
-
-    // sync memory
     changeBuffer.forEach(ch => {
       const hit = getOrderByRow(ch.row);
-      if (!hit) return;
-      for (const k in ch.updates){
-        hit.party.processes[k] = ch.updates[k];
-      }
+      if (hit){ for (const k in ch.updates){ hit.party.processes[k] = ch.updates[k]; } }
     });
     changeBuffer = [];
     setStatus('✅ Saved updates');
   } catch(err){
     setStatus('❌ ' + err.message, false);
-  } finally {
-    hideLoader();
-  }
+  } finally { hideLoader(); }
 }
 
 async function deliverParty(row, srNo, sheetName, partyName){
@@ -331,8 +395,6 @@ async function deliverParty(row, srNo, sheetName, partyName){
     const res = await fetch(SCRIPT_URL, { method:'POST', body });
     const j = await res.json();
     if (!j.success) throw new Error(j.message || 'deliver failed');
-
-    // remove this party from UI + memory
     const hit = getOrderByRow(row);
     if (hit){
       hit.order.parties = hit.order.parties.filter(p => p.row !== row);
@@ -345,16 +407,12 @@ async function deliverParty(row, srNo, sheetName, partyName){
         if (card) card.remove();
       }
     }
-
     setStatus('Delivered ' + partyName);
   } catch(err){
     setStatus('❌ ' + err.message, false);
-  } finally {
-    hideLoader();
-  }
+  } finally { hideLoader(); }
 }
 
-/* ====== LOAD ALL PENDING ====== */
 async function loadAllPending(){
   showLoader();
   try{
@@ -367,7 +425,6 @@ async function loadAllPending(){
     staffList = data.staff || [];
     allOrders = data.orders || [];
 
-    // Build filters
     const sortSr = el('sortSr');
     sortSr.innerHTML = '<option value="">All</option>' + (allOrders.map(o => `<option>${o.srNo}</option>`).join(''));
     sortSr.onchange = renderOrders;
@@ -378,19 +435,15 @@ async function loadAllPending(){
 
     el('filterParty').oninput = renderOrders;
     el('filterProcess').onchange = renderOrders;
-
     el('saveBtn').onclick = saveUpdates;
 
     renderOrders();
     setStatus('Loaded pending workflow');
   } catch(err){
     setStatus('❌ ' + err.message, false);
-  } finally {
-    hideLoader();
-  }
+  } finally { hideLoader(); }
 }
 
-/* ====== INIT ====== */
 document.addEventListener('DOMContentLoaded', loadAllPending);
 </script>
 </body>
