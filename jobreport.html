@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Job Report</title>
+<style>
+  :root{ --g900:#0f3d2e; --g800:#145a41; --bg:#f6fbf8; --card:#fff; --ink:#1a2421; --muted:#5b6b6f; --line:#e5efe8; }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink)}
+
+  /* NAV */
+  .nav{position:sticky;top:0;background:#ffffffcc;backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:50}
+  .nav-inner{max-width:1200px;margin:0 auto;padding:8px 12px;display:flex;gap:8px;align-items:center}
+  .brand{font-weight:800;color:var(--g800);margin-right:8px}
+  .tabs{display:flex;gap:6px;flex-wrap:wrap}
+  .tab{border:1px solid #d7eadf;background:var(--card);color:var(--g800);padding:6px 12px;border-radius:999px;font-weight:600;text-decoration:none}
+  .tab.active{background:var(--g800);color:#fff;border-color:var(--g800)}
+
+  /* TOOLBAR */
+  .toolbar{position:sticky;top:46px;z-index:40;background:#ffffffcc;border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
+  .toolbar-inner{max-width:1200px;margin:0 auto;padding:8px 12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center}
+  .toolbar select,.toolbar input{padding:6px 8px;border:1px solid #cfe7da;border-radius:10px;background:#fff;font-size:12px;min-height:28px}
+  .btn{appearance:none;border:none;border-radius:10px;padding:8px 10px;font-weight:700;cursor:pointer}
+  .btn-primary{background:#1c7a57;color:#fff}
+  .btn-soft{background:#fff;border:1px dashed #cfe7da}
+
+  /* WRAP */
+  .wrap{max-width:1200px;margin:10px auto;padding:0 12px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(16,45,32,.05)}
+  h2.title{text-align:center;font-size:20px;margin:0 0 8px;color:var(--g900)}
+  .sub{text-align:center;margin:0 0 10px;color:var(--muted);font-size:12px}
+
+  /* COUNTS */
+  .counts{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:10px}
+  .countBox{border:1px solid var(--line);border-radius:10px;padding:8px 12px;background:#f6fbf8;font-size:12px;text-align:center}
+  .countBox .v{font-size:15px;font-weight:800;color:var(--g800)}
+
+  /* JOB ROWS */
+  .jobRow{border:1px solid var(--line);border-radius:10px;padding:10px;margin-bottom:10px;background:#fff}
+  .orderHead{font-weight:700;color:var(--g800);margin-bottom:6px;font-size:13px}
+  .partyLine{margin-left:12px;font-size:12px;margin-bottom:3px}
+  .partyLine b{color:var(--g900)}
+  .proc{font-weight:700;color:var(--g800)}
+  .procSep{color:#999}
+
+  /* Loader */
+  .loader{position:fixed;inset:0;background:#0006;backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:999}
+  .ring{width:56px;height:56px;border:5px solid #fff;border-top:5px solid #1c7a57;border-radius:50%;animation:spin 1s linear infinite;box-shadow:0 0 14px #1c7a57}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  @media print{
+    @page{ size: A3 landscape; margin:10mm; }
+    .nav,.toolbar{display:none !important}
+    body{background:#fff}
+    .wrap{max-width:none;margin:0;padding:0}
+  }
+</style>
+</head>
+<body>
+  <!-- NAV -->
+  <div class="nav">
+    <div class="nav-inner">
+      <div class="brand">Tabs</div>
+      <div class="tabs">
+        <a class="tab" href="order.html">Add Order</a>
+        <a class="tab" href="workflow.html">Workflow</a>
+        <a class="tab" href="accounts.html">Accounts</a>
+        <a class="tab" href="reports.html">Reports</a>
+        <a class="tab active" href="jobreport.html">Job Report</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="toolbar">
+    <div class="toolbar-inner">
+      <select id="staffSelect"><option value="">All Staff</option></select>
+      <select id="processSelect"><option value="">All Processes</option></select>
+      <input id="fromDate" type="date" />
+      <input id="toDate" type="date" />
+      <button class="btn btn-primary" id="genBtn">Generate</button>
+      <button class="btn btn-soft" id="downloadBtn">Download PDF</button>
+    </div>
+  </div>
+
+  <!-- BODY -->
+  <div class="wrap">
+    <div class="card">
+      <h2 class="title">Job Report</h2>
+      <div class="counts" id="counts"></div>
+      <div id="jobHost"></div>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <div class="loader" id="loader"><div class="ring"></div></div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwZpdkNgtg9Kvr10R_kHqmHJyOmBG0FIB1-4jqtpSuoycWVFUkQFAaS9o2YEA1DClv8/exec"; // replace with your Apps Script web app link
+const el = id => document.getElementById(id);
+const showLoader = ()=> el('loader').style.display='flex';
+const hideLoader = ()=> el('loader').style.display='none';
+
+let ALL_LINES=[];
+
+function parseProcessCell(txt){
+  if(!txt) return {staff:"",date:""};
+  const s=String(txt).trim();
+  const m=s.match(/Expected:\s*(\d{4}-\d{2}-\d{2})/i);
+  return {staff:s.split("|")[0].trim(), date:m?m[1]:""};
+}
+
+async function api(action, params={}){
+  const payload = { action, ...params };
+  const body = new URLSearchParams({ payload: JSON.stringify(payload) });
+  const res = await fetch(SCRIPT_URL,{method:"POST",body});
+  const txt = await res.text();
+  let j; try{ j=JSON.parse(txt);}catch(e){throw new Error(txt);}
+  if(!j.success) throw new Error(j.message||"fail");
+  return j;
+}
+
+async function loadAllData(){
+  showLoader();
+  try{
+    const [acc,ord]=await Promise.all([
+      api("getAccountsDataPaged",{page:1,pageSize:100000,showReceived:true}),
+      api("getOrdersForReports")
+    ]);
+    const ordMap=new Map();
+    (ord.rows||[]).forEach(o=>ordMap.set(`${o.srNo}||${o.party}||${o.product}`,o));
+
+    ALL_LINES=(acc.rows||[]).map(r=>{
+      const key=`${r.srNo}||${r.party||""}||${r.product||""}`;
+      const o=ordMap.get(key)||{};
+      return {
+        srNo:r.srNo, sheet:r.sheetNm, orderDt:r.orderDt, sheetSz:r.sheetSz, qual:r.qual, qty:r.qty,
+        party:r.party, product:r.product, processes:o.processes||{}
+      };
+    });
+
+    buildFilters();
+    renderFiltered();
+  }catch(e){alert("❌ "+e.message);}
+  finally{hideLoader();}
+}
+
+function buildFilters(){
+  const names=new Set();
+  ALL_LINES.forEach(L=>{
+    for(const v of Object.values(L.processes||{})){
+      const {staff}=parseProcessCell(v);
+      if(staff) names.add(staff);
+    }
+  });
+  el("staffSelect").innerHTML='<option value="">All Staff</option>'+[...names].sort().map(s=>`<option>${s}</option>`).join("");
+
+  const procs=["Designing","Paper","Printing","Lamination/UV Coating","Cutting","Half Cutting","Punching","Leaf Printing","Binding","Pasting","Deliver"];
+  el("processSelect").innerHTML='<option value="">All Processes</option>'+procs.map(p=>`<option>${p}</option>`).join("");
+}
+
+function renderFiltered(){
+  const staff=el("staffSelect").value;
+  const proc=el("processSelect").value;
+  const from=el("fromDate").value;
+  const to=el("toDate").value;
+
+  let lines=ALL_LINES.slice();
+  if(staff) lines=lines.filter(L=>Object.values(L.processes).some(v=>parseProcessCell(v).staff===staff));
+  if(proc) lines=lines.filter(L=>L.processes[proc]);
+  if(from||to){
+    const fd=from?new Date(from+"T00:00:00"):null;
+    const td=to?new Date(to+"T23:59:59"):null;
+    lines=lines.filter(L=>Object.values(L.processes).some(v=>{
+      const {date}=parseProcessCell(v);
+      if(!date) return false;
+      const d=new Date(date+"T00:00:00");
+      return (!fd||d>=fd)&&(!td||d<=td);
+    }));
+  }
+  render(lines,staff,proc);
+}
+
+function render(lines,staff,proc){
+  const host=el("jobHost");host.innerHTML="";
+  if(!lines.length){host.textContent="No data";el("counts").innerHTML="";return;}
+
+  const bySr=new Map();
+  lines.forEach(L=>{
+    if(!bySr.has(L.srNo))bySr.set(L.srNo,{...L,parties:[]});
+    bySr.get(L.srNo).parties.push(L);
+  });
+
+  const orders=bySr.size;let parties=0;let procCount={};
+  bySr.forEach(o=>{
+    o.parties.forEach(p=>{
+      parties++;
+      for(const [k,v] of Object.entries(p.processes||{})){
+        if(!v) continue;
+        const {staff:st}=parseProcessCell(v);
+        if((!staff||st===staff)&&(!proc||k===proc)){
+          procCount[k]=(procCount[k]||0)+1;
+        }
+      }
+    });
+  });
+
+  el("counts").innerHTML=`<div class="countBox"><div>Orders</div><div class="v">${orders}</div></div>
+    <div class="countBox"><div>Parties</div><div class="v">${parties}</div></div>`+
+    Object.entries(procCount).map(([k,v])=>`<div class="countBox"><div>${k}</div><div class="v">${v}</div></div>`).join("");
+
+  bySr.forEach(o=>{
+    const div=document.createElement("div");div.className="jobRow";
+    div.innerHTML=`<div class="orderHead">
+      SrNo: ${o.srNo} | Job: ${o.sheet||""} | Date: ${o.orderDt||""} | Size: ${o.sheetSz||""} | Quality: ${o.qual||""} | Qty: ${o.qty||""}
+    </div>`;
+    o.parties.forEach(p=>{
+      const procs=Object.entries(p.processes||{})
+        .filter(([k,v])=>v&&(!proc||k===proc))
+        .map(([k,v])=>{
+          const {staff:st}=parseProcessCell(v);
+          if(staff && st!==staff) return "";
+          return `<span class="proc">${k}</span>${st?": "+st:""}`;
+        })
+        .filter(Boolean)
+        .join(' <span class="procSep">|</span> ');
+      div.innerHTML+=`<div class="partyLine"><b>${p.party}${p.product?` (${p.product})`:""}</b> – ${procs||"-"}</div>`;
+    });
+    host.appendChild(div);
+  });
+}
+
+function exportPdf(){window.print();}
+
+document.addEventListener("DOMContentLoaded",async()=>{
+  await loadAllData();
+  el("genBtn").addEventListener("click",renderFiltered);
+  el("downloadBtn").addEventListener("click",exportPdf);
+});
+</script>
+</body>
+</html>
