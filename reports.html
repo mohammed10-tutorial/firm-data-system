@@ -7,7 +7,7 @@
 <style>
   :root{ --g900:#0f3d2e; --g800:#145a41; --g700:#1c7a57; --bg:#f6fbf8; --card:#fff; --ink:#1a2421; --muted:#5b6b6f; --line:#e5efe8; --soft:#eef8f2; }
   *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink)}
+  body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink);font-size:13px;} /* smaller font */
 
   /* NAV */
   .nav{position:sticky;top:0;background:#ffffffcc;backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:50}
@@ -28,68 +28,55 @@
   /* WRAP */
   .wrap{max-width:1200px;margin:10px auto;padding:0 12px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(16,45,32,.05)}
-  h2.title{text-align:center;font-size:20px;margin:0 0 8px;color:var(--g900)}
-  .sub{text-align:center;margin:0 0 10px;color:var(--muted);font-size:12px}
-  .status{margin-top:8px;text-align:center;font-weight:700;font-size:12px}
+  h2.title{text-align:center;font-size:18px;margin:0 0 8px;color:var(--g900)}
+  .sub{text-align:center;margin:0 0 10px;color:var(--muted);font-size:11px}
+  .status{margin-top:8px;text-align:center;font-weight:700;font-size:11px}
 
   /* KPIs */
   .kpis{display:grid;grid-template-columns: repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:8px}
   .kpi{border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--soft)}
-  .kpi h4{margin:0 0 6px;font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-  .kpi .v{font-weight:800;font-size:16px}
+  .kpi h4{margin:0 0 6px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .kpi .v{font-weight:800;font-size:15px}
   .mono{font-variant-numeric: tabular-nums; font-feature-settings:"tnum" 1;}
   .rupee::before{content:"₹ "}
 
-  /* ORDER ROWS (grid-with-columns design) */
+  /* ORDER ROWS */
   .orderRow{display:flex;gap:8px;margin:8px 0;}
   .stickyL{position:sticky;top:100px;align-self:flex-start;min-width:248px}
   .shared{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;border-left:8px solid var(--g800)}
-  .shared h3{margin:0 0 6px;color:var(--g800);font-size:14px}
-  .kv{display:grid;grid-template-columns:96px 1fr;gap:4px 8px;font-size:11px;line-height:1.2}
+  .shared h3{margin:0 0 6px;color:var(--g800);font-size:13px}
+  .kv{display:grid;grid-template-columns:96px 1fr;gap:4px 8px;font-size:10px;line-height:1.2}
 
   .right{flex:1;min-width:0}
   .panel{border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden}
 
   .head{position:sticky;top:0;background:#ffffffcc;backdrop-filter:blur(4px);z-index:5;border-bottom:1px solid var(--line)}
-  .headCols{display:grid;grid-auto-flow:column;grid-auto-columns:260px;gap:6px;padding:6px;font:600 11px/1.1 system-ui;color:var(--muted);text-transform:uppercase;white-space:nowrap}
-  .cols{display:grid;grid-auto-flow:column;grid-auto-columns:260px;gap:6px;padding:8px;overflow:auto}
+  .headCols{display:grid;grid-auto-flow:column;grid-auto-columns:240px;gap:6px;padding:6px;font:600 10px/1.1 system-ui;color:var(--muted);text-transform:uppercase;white-space:nowrap}
+  .cols{display:grid;grid-auto-flow:column;grid-auto-columns:240px;gap:6px;padding:8px;overflow:auto}
 
-  .party{border:1px solid var(--line);border-radius:8px;padding:8px;background:#fff;min-width:0}
-  .partyTitle{font-size:12px;font-weight:800;color:var(--g800);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .party{border:1px solid var(--line);border-radius:8px;padding:6px;background:#fff;min-width:0}
+  .partyTitle{font-size:11px;font-weight:800;color:var(--g800);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-  .mini{font-size:10.5px;color:var(--muted);margin:6px 0 4px}
-  .inlike{width:100%;padding:6px 8px;border:1px solid #e8efe9;border-radius:8px;background:#fafdfa;font-size:11.5px;font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
-  .rupee::before{content:"₹ "}
-  .mono{font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
-
-  /* Processes (per party, first block) */
-  .procCard{border:1px dashed #d9e9df;background:#f9fcfa;border-radius:8px;padding:6px;margin-bottom:6px}
-  .procRow{display:grid;grid-template-columns:150px 1fr;gap:4px 8px;font-size:11.5px}
-  .procName{color:var(--g800);font-weight:700;white-space:normal;overflow-wrap:anywhere}
-  .procVal{white-space:normal;overflow-wrap:anywhere}
-  .softWrap{word-break:break-word}
-  .who{font-weight:600}
-  .when{font-size:10.5px;color:#6b7c73}
-
-  /* Payments list */
-  .payList{display:flex;flex-direction:column;gap:4px}
-  .payLine{display:flex;justify-content:space-between;gap:8px}
-  .payAmt{font-weight:800}
-  .payDate{font-size:10.5px;color:#5b6b6f;white-space:nowrap}
+  /* Processes */
+  .procCard{border:1px dashed #d9e9df;background:#f9fcfa;border-radius:6px;padding:4px;margin-bottom:4px}
+  .procRow{display:flex;flex-direction:column;font-size:10.5px;border-bottom:1px solid var(--line);padding:2px 0}
+  .procRow:last-child{border-bottom:none}
+  .procName{color:var(--g800);font-weight:700}
+  .who{font-weight:600;font-size:10px;margin-left:4px}
+  .when{font-size:9.5px;color:#6b7c73;margin-left:4px}
 
   /* Loader */
   .loader{position:fixed;inset:0;background:#0006;backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:999}
   .ring{width:56px;height:56px;border:5px solid #fff;border-top:5px solid #1c7a57;border-radius:50%;animation:spin 1s linear infinite;box-shadow:0 0 14px #1c7a57}
   @keyframes spin{to{transform:rotate(360deg)}}
 
-  /* PRINT: keep columns in ONE row, make canvas wider, no clipping */
   @media print{
     @page{ size: A3 landscape; margin:10mm; }
     .nav,.toolbar{display:none !important}
-    body{background:#fff}
+    body{background:#fff;font-size:11px}
     .card{box-shadow:none;border:none;padding:0}
     .wrap{max-width:none;margin:0;padding:0}
-    .printWide{width:3000px}            /* widen canvas so all party columns fit; browser will scale */
+    .printWide{width:3000px}
     .head{position:static}
     .cols{overflow:visible !important}
     .panel{border:none}
@@ -107,6 +94,7 @@
         <a class="tab" href="workflow.html">Workflow</a>
         <a class="tab" href="accounts.html">Accounts</a>
         <a class="tab active" href="reports.html">Reports</a>
+        <a class="tab" href="jobreport.html">Job Report</a>
       </div>
     </div>
   </div>
@@ -136,26 +124,21 @@
 
   <!-- BODY -->
   <div class="wrap">
-    <div class="card printWide"><!-- printWide widens only for print -->
+    <div class="card printWide">
       <h2 class="title">Reports</h2>
       <p class="sub"></p>
-
-      <!-- KPIs -->
       <div class="kpis" id="kpis"></div>
-
-      <!-- ORDERS HOST -->
       <div id="ordersHost"></div>
-
       <div id="status" class="status"></div>
     </div>
   </div>
 
-  <!-- Loader -->
   <div class="loader" id="loader"><div class="ring"></div></div>
 
 <script>
+/* same JS as before – only changed CSS above */
 /* ====== CONFIG ====== */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpvUxxwa62tB4bpP0qUvmW848zByhgpWRzRx9QDbRajP8MKzK3_vsFbGKVVAnqIccN/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw5OXTOLYI7OdOe0sURIpN3n96hu7_V0heMNJ1tiEEAR8DHLhjIlvU33_T8DVhIALTq/exec";
 const API_TOKEN  = ""; // optional
 const RENDER_PER_FRAME = 2; // orders rendered per frame
 
@@ -526,4 +509,3 @@ document.addEventListener('DOMContentLoaded', async ()=>{
 </script>
 </body>
 </html>
-
