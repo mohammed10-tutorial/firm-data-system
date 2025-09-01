@@ -21,15 +21,15 @@
   .toolbar{position:sticky;top:46px;z-index:40;background:#ffffffcc;border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
   .toolbar-inner{max-width:1200px;margin:0 auto;padding:8px 12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center}
   .toolbar select,.toolbar input{padding:6px 8px;border:1px solid #cfe7da;border-radius:10px;background:#fff;font-size:12px;min-height:28px}
+  .toolbar input,.toolbar select{width:140px;}
   .btn{appearance:none;border:none;border-radius:10px;padding:8px 10px;font-weight:700;cursor:pointer}
   .btn-primary{background:#1c7a57;color:#fff}
   .btn-soft{background:#fff;border:1px dashed #cfe7da}
 
-  /* WRAP */
+  /* BODY */
   .wrap{max-width:1200px;margin:10px auto;padding:0 12px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(16,45,32,.05)}
   h2.title{text-align:center;font-size:20px;margin:0 0 8px;color:var(--g900)}
-  .sub{text-align:center;margin:0 0 10px;color:var(--muted);font-size:12px}
 
   /* COUNTS */
   .counts{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-bottom:10px}
@@ -44,17 +44,10 @@
   .proc{font-weight:700;color:var(--g800)}
   .procSep{color:#999}
 
-  /* Loader */
+  /* LOADER */
   .loader{position:fixed;inset:0;background:#0006;backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:999}
   .ring{width:56px;height:56px;border:5px solid #fff;border-top:5px solid #1c7a57;border-radius:50%;animation:spin 1s linear infinite;box-shadow:0 0 14px #1c7a57}
   @keyframes spin{to{transform:rotate(360deg)}}
-
-  @media print{
-    @page{ size: A3 landscape; margin:10mm; }
-    .nav,.toolbar{display:none !important}
-    body{background:#fff}
-    .wrap{max-width:none;margin:0;padding:0}
-  }
 </style>
 </head>
 <body>
@@ -79,6 +72,13 @@
       <select id="processSelect"><option value="">All Processes</option></select>
       <input id="fromDate" type="date" />
       <input id="toDate" type="date" />
+
+      <!-- Searches -->
+      <select id="searchSr"><option value="">All Sr. Nos.</option></select>
+      <input id="searchParty" type="text" placeholder="Search (Party)" />
+      <input id="searchProduct" type="text" placeholder="Search (Product)" />
+      <input id="searchSheet" type="text" placeholder="Search (Sheet)" />
+
       <button class="btn btn-primary" id="genBtn">Generate</button>
       <button class="btn btn-soft" id="downloadBtn">Download PDF</button>
     </div>
@@ -93,16 +93,24 @@
     </div>
   </div>
 
-  <!-- Loader -->
+  <!-- LOADER -->
   <div class="loader" id="loader"><div class="ring"></div></div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwZpdkNgtg9Kvr10R_kHqmHJyOmBG0FIB1-4jqtpSuoycWVFUkQFAaS9o2YEA1DClv8/exec"; // replace with your Apps Script web app link
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwcf50t0NaZ9C161tedpxs4rRN0zFElewYNNHCucH-_BFno5NER1ZH5rWjKLYqRIJXw/exec"; 
 const el = id => document.getElementById(id);
-const showLoader = ()=> el('loader').style.display='flex';
-const hideLoader = ()=> el('loader').style.display='none';
+const showLoader = ()=> el("loader").style.display="flex";
+const hideLoader = ()=> el("loader").style.display="none";
 
 let ALL_LINES=[];
+
+/* Convert DD/MM/YYYY → YYYY-MM-DD for comparison */
+function toYMD(dmy){
+  if(!dmy) return "";
+  const parts=dmy.split("/");
+  if(parts.length!==3) return dmy;
+  return `${parts[2]}-${parts[1].padStart(2,"0")}-${parts[0].padStart(2,"0")}`;
+}
 
 function parseProcessCell(txt){
   if(!txt) return {staff:"",date:""};
@@ -135,18 +143,26 @@ async function loadAllData(){
       const key=`${r.srNo}||${r.party||""}||${r.product||""}`;
       const o=ordMap.get(key)||{};
       return {
-        srNo:r.srNo, sheet:r.sheetNm, orderDt:r.orderDt, sheetSz:r.sheetSz, qual:r.qual, qty:r.qty,
-        party:r.party, product:r.product, processes:o.processes||{}
+        srNo:String(r.srNo||""),
+        sheet:String(r.sheetNm||""),
+        orderDt:r.orderDt ? String(r.orderDt) : "", // already dd/MM/yyyy
+        sheetSz:r.sheetSz,
+        qual:r.qual || "",
+        qty:r.qty,
+        party:String(r.party||""),
+        product:String(r.product||""),
+        processes:o.processes||{}
       };
     });
 
     buildFilters();
     renderFiltered();
-  }catch(e){alert("❌ "+e.message);}
-  finally{hideLoader();}
+  }catch(e){ alert("❌ "+e.message); }
+  finally{ hideLoader(); }
 }
 
 function buildFilters(){
+  // staff
   const names=new Set();
   ALL_LINES.forEach(L=>{
     for(const v of Object.values(L.processes||{})){
@@ -156,8 +172,13 @@ function buildFilters(){
   });
   el("staffSelect").innerHTML='<option value="">All Staff</option>'+[...names].sort().map(s=>`<option>${s}</option>`).join("");
 
+  // processes
   const procs=["Designing","Paper","Printing","Lamination/UV Coating","Cutting","Half Cutting","Punching","Leaf Printing","Binding","Pasting","Deliver"];
   el("processSelect").innerHTML='<option value="">All Processes</option>'+procs.map(p=>`<option>${p}</option>`).join("");
+
+  // Sr No dropdown
+  const srSet=[...new Set(ALL_LINES.map(L=>L.srNo))].sort((a,b)=>a-b);
+  el("searchSr").innerHTML='<option value="">All Sr. Nos.</option>'+srSet.map(s=>`<option>${s}</option>`).join("");
 }
 
 function renderFiltered(){
@@ -166,19 +187,26 @@ function renderFiltered(){
   const from=el("fromDate").value;
   const to=el("toDate").value;
 
+  const qSr=el("searchSr").value;
+  const qParty=(el("searchParty").value||"").toLowerCase();
+  const qProd=(el("searchProduct").value||"").toLowerCase();
+  const qSheet=(el("searchSheet").value||"").toLowerCase();
+
   let lines=ALL_LINES.slice();
   if(staff) lines=lines.filter(L=>Object.values(L.processes).some(v=>parseProcessCell(v).staff===staff));
   if(proc) lines=lines.filter(L=>L.processes[proc]);
   if(from||to){
-    const fd=from?new Date(from+"T00:00:00"):null;
-    const td=to?new Date(to+"T23:59:59"):null;
-    lines=lines.filter(L=>Object.values(L.processes).some(v=>{
-      const {date}=parseProcessCell(v);
-      if(!date) return false;
-      const d=new Date(date+"T00:00:00");
-      return (!fd||d>=fd)&&(!td||d<=td);
-    }));
+    lines=lines.filter(L=>{
+      const dYMD=toYMD(L.orderDt);
+      return (!from||dYMD>=from)&&(!to||dYMD<=to);
+    });
   }
+
+  if(qSr) lines=lines.filter(L=>L.srNo===qSr);
+  if(qParty) lines=lines.filter(L=>L.party.toLowerCase().includes(qParty));
+  if(qProd) lines=lines.filter(L=>L.product.toLowerCase().includes(qProd));
+  if(qSheet) lines=lines.filter(L=>L.sheet.toLowerCase().includes(qSheet));
+
   render(lines,staff,proc);
 }
 
@@ -191,24 +219,6 @@ function render(lines,staff,proc){
     if(!bySr.has(L.srNo))bySr.set(L.srNo,{...L,parties:[]});
     bySr.get(L.srNo).parties.push(L);
   });
-
-  const orders=bySr.size;let parties=0;let procCount={};
-  bySr.forEach(o=>{
-    o.parties.forEach(p=>{
-      parties++;
-      for(const [k,v] of Object.entries(p.processes||{})){
-        if(!v) continue;
-        const {staff:st}=parseProcessCell(v);
-        if((!staff||st===staff)&&(!proc||k===proc)){
-          procCount[k]=(procCount[k]||0)+1;
-        }
-      }
-    });
-  });
-
-  el("counts").innerHTML=`<div class="countBox"><div>Orders</div><div class="v">${orders}</div></div>
-    <div class="countBox"><div>Parties</div><div class="v">${parties}</div></div>`+
-    Object.entries(procCount).map(([k,v])=>`<div class="countBox"><div>${k}</div><div class="v">${v}</div></div>`).join("");
 
   bySr.forEach(o=>{
     const div=document.createElement("div");div.className="jobRow";
@@ -237,6 +247,8 @@ document.addEventListener("DOMContentLoaded",async()=>{
   await loadAllData();
   el("genBtn").addEventListener("click",renderFiltered);
   el("downloadBtn").addEventListener("click",exportPdf);
+  ["searchSr","searchParty","searchProduct","searchSheet"]
+    .forEach(id=> el(id).addEventListener("input",renderFiltered));
 });
 </script>
 </body>
