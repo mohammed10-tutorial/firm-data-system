@@ -109,7 +109,7 @@
       <input type="text" id="filterParty" placeholder="Search Party" />
       <select id="filterProcess">
         <option value="">All Processes</option>
-        <option>Paper</option>
+        <option>Designing</option><option>Paper</option>
         <option>Printing</option><option>Lamination/UV Coating</option><option>Cutting</option>
         <option>Half Cutting</option><option>Punching</option><option>Leaf Printing</option>
         <option>Binding</option><option>Pasting</option><option>Deliver</option>
@@ -134,9 +134,9 @@
   <div class="loader" id="loader"><div class="ring"></div></div>
 
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxpvUxxwa62tB4bpP0qUvmW848zByhgpWRzRx9QDbRajP8MKzK3_vsFbGKVVAnqIccN/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby3vEHMfmF6D2z-WVnFIouMNeaccHd-54dTbOzMfAAERi5vER4UcDO8sugSFoMJbnQt/exec";
 const processes = [
-  "Paper",
+  "Designing","Paper",
   "Printing","Lamination/UV Coating","Cutting","Half Cutting",
   "Punching","Leaf Printing","Binding","Pasting","Deliver"
 ];
@@ -448,4 +448,3 @@ document.addEventListener('DOMContentLoaded', loadAllPending);
 </script>
 </body>
 </html>
-
