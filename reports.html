@@ -70,18 +70,21 @@
   .ring{width:56px;height:56px;border:5px solid #fff;border-top:5px solid #1c7a57;border-radius:50%;animation:spin 1s linear infinite;box-shadow:0 0 14px #1c7a57}
   @keyframes spin{to{transform:rotate(360deg)}}
 
-  @media print{
-    @page{ size: A3 landscape; margin:10mm; }
-    .nav,.toolbar{display:none !important}
-    body{background:#fff;font-size:11px}
-    .card{box-shadow:none;border:none;padding:0}
-    .wrap{max-width:none;margin:0;padding:0}
-    .printWide{width:3000px}
-    .head{position:static}
-    .cols{overflow:visible !important}
-    .panel{border:none}
-    .orderRow{break-inside:avoid}
-  }
+@media print{
+  /* REMOVE forced @page so browser shows all options */
+  /* @page{ size: A3 landscape; margin:10mm; } */
+
+  .nav,.toolbar{display:none !important}
+  body{background:#fff;font-size:11px}
+  .card{box-shadow:none;border:none;padding:0}
+  .wrap{max-width:none;margin:0;padding:0}
+  .printWide{width:auto}   /* don’t force 3000px */
+  .head{position:static}
+  .cols{overflow:visible !important}
+  .panel{border:none}
+  .orderRow{break-inside:avoid}
+}
+
 </style>
 </head>
 <body>
@@ -116,7 +119,7 @@
       </select>
       <input id="minPending" type="number" min="0" step="1" placeholder="Pending ≥" />
       <input id="searchQ" type="text" placeholder="Search (Sr/Party/Product/Sheet)" />
-      <button class="btn btn-primary" id="downloadPdfBtn">Download PDF</button>
+      <button class="btn btn-soft" id="downloadBtn">Download PDF</button>
       <button class="btn btn-soft" id="downloadCsvLedgerBtn">CSV Ledger</button>
       <button class="btn btn-soft" id="downloadCsvPaymentsBtn">CSV Payments</button>
     </div>
@@ -498,7 +501,7 @@ function hookFilters(){
   el('searchQ').addEventListener('input', renderAll);
   el('downloadCsvLedgerBtn').addEventListener('click', exportCsvLedger);
   el('downloadCsvPaymentsBtn').addEventListener('click', exportCsvPayments);
-  el('downloadPdfBtn').addEventListener('click', exportPdf);
+  el('downloadBtn').addEventListener('click', exportPdf);
 }
 
 /* ====== INIT ====== */
