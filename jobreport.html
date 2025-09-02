@@ -190,7 +190,7 @@ function buildFilters(){
       if(staff) names.add(staff);
     }
   });
-  el("staffSelect").innerHTML='<option value="">All Staff</option>'+[...names].sort().map(s=>`<option>${s}</option>`).join("");
+  el("staffSelect").innerHTML='<option value="">All Job Places</option>'+[...names].sort().map(s=>`<option>${s}</option>`).join("");
 
   // processes
   const procs=["Designing","Paper","Printing","Lamination/UV Coating","Cutting","Half Cutting","Punching","Leaf Printing","Binding","Pasting","Deliver"];
@@ -306,4 +306,5 @@ document.addEventListener("DOMContentLoaded",async()=>{
 </script>
 </body>
 </html>
+
 
