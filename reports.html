@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Reports</title>
 <style>
-  :root{ --g900:#0f3d2e; --g800:#145a41; --g700:#1c7a57; --bg:#f6fbf8; --card:#fff; --ink:#1a2421; --muted:#5b6b6f; --line:#e5efe8; --soft:#eef8f2; }
+  :root{ --g900:#0f3d2e; --g800:#145a41; --bg:#f6fbf8; --card:#fff; --ink:#1a2421; --muted:#5b6b6f; --line:#e5efe8; --soft:#eef8f2; }
   *{box-sizing:border-box}
-  body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink);font-size:13px;} /* smaller font */
+  body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink);font-size:13px;}
 
   /* NAV */
-  .nav{position:sticky;top:0;background:#ffffffcc;backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:50}
+  .nav{position:sticky;top:0;background:#ffffffcc;backdrop-filter:blur(8px);border-bottom:1px solid var(--line);z-index:100}
   .nav-inner{max-width:1200px;margin:0 auto;padding:8px 12px;display:flex;gap:8px;align-items:center}
   .brand{font-weight:800;color:var(--g800);margin-right:8px}
   .tabs{display:flex;gap:6px;flex-wrap:wrap}
@@ -18,68 +18,60 @@
   .tab.active{background:var(--g800);color:#fff;border-color:var(--g800)}
 
   /* TOOLBAR */
-  .toolbar{position:sticky;top:46px;z-index:40;background:#ffffffcc;border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
-  .toolbar-inner{max-width:1200px;margin:0 auto;padding:8px 12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:center}
-  .toolbar select,.toolbar input{padding:6px 8px;border:1px solid #cfe7da;border-radius:10px;background:#fff;font-size:12px;min-height:28px}
-  .btn{appearance:none;border:none;border-radius:10px;padding:8px 10px;font-weight:700;cursor:pointer}
-  .btn-primary{background:#1c7a57;color:#fff}
+  .toolbar{position:sticky;top:46px;z-index:90;background:#ffffffcc;border-bottom:1px solid var(--line);backdrop-filter:blur(8px)}
+  .toolbar-inner{max-width:1200px;margin:0 auto;padding:4px 6px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:center}
+  .toolbar select,.toolbar input{padding:4px 6px;border:1px solid #cfe7da;border-radius:8px;background:#fff;font-size:11px;min-height:24px;width:110px}
+  #searchParty,#searchProduct,#searchSheet{width:130px}
+  #searchSr{width:80px}
+  .btn{appearance:none;border:none;border-radius:8px;padding:4px 8px;font-weight:700;cursor:pointer;font-size:11px}
   .btn-soft{background:#fff;border:1px dashed #cfe7da}
+
+  .dateGroup{display:flex;align-items:center;gap:4px;background:#f6fbf8;border:1px solid #cfe7da;border-radius:6px;padding:2px 6px}
+  .dateGroup label{font-size:11px;font-weight:600;color:var(--g800);white-space:nowrap}
+  .dateGroup span{font-size:11px;color:var(--muted)}
 
   /* WRAP */
   .wrap{max-width:1200px;margin:10px auto;padding:0 12px}
   .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:0 6px 18px rgba(16,45,32,.05)}
   h2.title{text-align:center;font-size:18px;margin:0 0 8px;color:var(--g900)}
-  .sub{text-align:center;margin:0 0 10px;color:var(--muted);font-size:11px}
   .status{margin-top:8px;text-align:center;font-weight:700;font-size:11px}
 
   /* KPIs */
-  .kpis{display:grid;grid-template-columns: repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:8px}
-  .kpi{border:1px solid var(--line);border-radius:10px;padding:10px;background:var(--soft)}
-  .kpi h4{margin:0 0 6px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-  .kpi .v{font-weight:800;font-size:15px}
-  .mono{font-variant-numeric: tabular-nums; font-feature-settings:"tnum" 1;}
+  .kpis{display:grid;grid-template-columns: repeat(auto-fit,minmax(140px,1fr));gap:6px;margin-bottom:8px}
+  .kpi{border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--soft)}
+  .kpi h4{margin:0 0 4px;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .kpi .v{font-weight:800;font-size:14px}
   .rupee::before{content:"₹ "}
 
   /* ORDER ROWS */
-  .orderRow{display:flex;gap:8px;margin:8px 0;}
-  .stickyL{position:sticky;top:100px;align-self:flex-start;min-width:248px}
-  .shared{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;border-left:8px solid var(--g800)}
-  .shared h3{margin:0 0 6px;color:var(--g800);font-size:13px}
-  .kv{display:grid;grid-template-columns:96px 1fr;gap:4px 8px;font-size:10px;line-height:1.2}
+  .orderRow{display:flex;gap:6px;margin:6px 0;}
+  .stickyL{position:sticky;align-self:flex-start;min-width:220px;z-index:50}
+  .shared{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px;border-left:6px solid var(--g800)}
+  .shared h3{margin:0 0 4px;color:var(--g800);font-size:13px}
+  .kv{display:grid;grid-template-columns:90px 1fr;gap:4px 6px;font-size:10px;line-height:1.2}
 
   .right{flex:1;min-width:0}
-  .panel{border:1px solid var(--line);border-radius:10px;background:var(--card);overflow:hidden}
+  .panel{border:1px solid var(--line);border-radius:8px;background:var(--card);overflow:hidden}
+  .cols{display:grid;grid-auto-flow:column;grid-auto-columns:200px;gap:6px;padding:6px;overflow:auto}
 
-  .head{position:sticky;top:0;background:#ffffffcc;backdrop-filter:blur(4px);z-index:5;border-bottom:1px solid var(--line)}
-  .headCols{display:grid;grid-auto-flow:column;grid-auto-columns:240px;gap:6px;padding:6px;font:600 10px/1.1 system-ui;color:var(--muted);text-transform:uppercase;white-space:nowrap}
-  .cols{display:grid;grid-auto-flow:column;grid-auto-columns:240px;gap:6px;padding:8px;overflow:auto}
-
-  .party{border:1px solid var(--line);border-radius:8px;padding:6px;background:#fff;min-width:0}
-  .partyTitle{font-size:11px;font-weight:800;color:var(--g800);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-
-  /* Processes */
-  .procCard{border:1px dashed #d9e9df;background:#f9fcfa;border-radius:6px;padding:4px;margin-bottom:4px}
-  .procRow{display:flex;flex-direction:column;font-size:10.5px;border-bottom:1px solid var(--line);padding:2px 0}
+  .party{border:1px solid var(--line);border-radius:6px;padding:6px;background:#fff;min-width:0;font-size:11px}
+  .partyTitle{font-weight:800;color:var(--g800);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .procCard{border:1px dashed #d9e9df;background:#f9fcfa;border-radius:4px;padding:4px;margin-bottom:4px;font-size:10px}
+  .procRow{border-bottom:1px solid var(--line);padding:2px 0}
   .procRow:last-child{border-bottom:none}
-  .procName{color:var(--g800);font-weight:700}
-  .who{font-weight:600;font-size:10px;margin-left:4px}
-  .when{font-size:9.5px;color:#6b7c73;margin-left:4px}
+  .procName{color:var(--g800);font-weight:700;font-size:10px}
+  .who{font-size:10px;margin-left:2px}
+  .when{font-size:9px;color:#6b7c73;margin-left:2px}
 
   /* Loader */
   .loader{position:fixed;inset:0;background:#0006;backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:999}
-  .ring{width:56px;height:56px;border:5px solid #fff;border-top:5px solid #1c7a57;border-radius:50%;animation:spin 1s linear infinite;box-shadow:0 0 14px #1c7a57}
+  .ring{width:48px;height:48px;border:4px solid #fff;border-top:4px solid #1c7a57;border-radius:50%;animation:spin 1s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
-
-@media print{
-  /* REMOVE forced @page so browser shows all options */
-  /* @page{ size: A3 landscape; margin:10mm; } */
-
-  .nav,.toolbar{display:none !important}
+  @media print {
   body{background:#fff;font-size:11px}
-  .card{box-shadow:none;border:none;padding:0}
-  .wrap{max-width:none;margin:0;padding:0}
-  .printWide{width:auto}   /* don’t force 3000px */
-  .head{position:static}
+  .nav,.toolbar{display:none !important}
+  .wrap{max-width:none;margin:0;padding:0}   /* ✅ allow full width */
+  .card{box-shadow:none;border:none;padding:0;width:auto;max-width:none} /* ✅ no fixed width */
   .cols{overflow:visible !important}
   .panel{border:none}
   .orderRow{break-inside:avoid}
@@ -105,20 +97,26 @@
   <!-- FILTERS -->
   <div class="toolbar">
     <div class="toolbar-inner">
-      <select id="dateBasis">
-        <option value="order">Order Date</option>
-        <option value="delivery">Delivery Date</option>
-        <option value="either">Either</option>
-      </select>
-      <input id="fromDate" type="date" />
-      <input id="toDate" type="date" />
-      <select id="statusFilter">
-        <option value="">All Status</option>
-        <option value="Pending">Pending</option>
-        <option value="Received">Received</option>
-      </select>
+      <div class="dateGroup">
+        <label>Order Date</label>
+        <input id="fromDate" type="date" />
+        <span>to</span>
+        <input id="toDate" type="date" />
+      </div>
+      <div class="dateGroup">
+        <label>Process Date</label>
+        <input id="procFromDate" type="date" />
+        <span>to</span>
+        <input id="procToDate" type="date" />
+      </div>
+      <select id="staffSelect"><option value="">All Job Places</option></select>
+      <select id="processSelect"><option value="">All Processes</option></select>
+      <select id="searchSr"><option value="">All Sr. Nos.</option></select>
+      <select id="statusFilter"><option value="">All Status</option><option value="Pending">Pending</option><option value="Received">Received</option></select>
       <input id="minPending" type="number" min="0" step="1" placeholder="Pending ≥" />
-      <input id="searchQ" type="text" placeholder="Search (Sr/Party/Product/Sheet)" />
+      <input id="searchParty" type="text" placeholder="Search Party" />
+      <input id="searchProduct" type="text" placeholder="Search Product" />
+      <input id="searchSheet" type="text" placeholder="Search Sheet" />
       <button class="btn btn-soft" id="downloadBtn">Download PDF</button>
       <button class="btn btn-soft" id="downloadCsvLedgerBtn">CSV Ledger</button>
       <button class="btn btn-soft" id="downloadCsvPaymentsBtn">CSV Payments</button>
@@ -127,9 +125,8 @@
 
   <!-- BODY -->
   <div class="wrap">
-    <div class="card printWide">
+    <div class="card">
       <h2 class="title">Reports</h2>
-      <p class="sub"></p>
       <div class="kpis" id="kpis"></div>
       <div id="ordersHost"></div>
       <div id="status" class="status"></div>
@@ -139,377 +136,243 @@
   <div class="loader" id="loader"><div class="ring"></div></div>
 
 <script>
-/* same JS as before – only changed CSS above */
-/* ====== CONFIG ====== */
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzRpGr6vsSvtsyMFt0T2dClUdD7TUYinhCkq-gcPUesXw2A7mU3OncyJy833JSnngAX/exec";
-const API_TOKEN  = ""; // optional
-const RENDER_PER_FRAME = 2; // orders rendered per frame
-
-/* ====== STATE ====== */
-let ACC_ROWS = [];     // accounts rows (flat)
-let JOINED   = [];     // line-level (for filters / csv)
-let ORDERS   = [];     // order-level (for UI rows)
-
-/* ====== UTILS ====== */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwcf50t0NaZ9C161tedpxs4rRN0zFElewYNNHCucH-_BFno5NER1ZH5rWjKLYqRIJXw/exec";
 const el = id => document.getElementById(id);
-const showLoader = ()=> el('loader').style.display='flex';
-const hideLoader = ()=> el('loader').style.display='none';
-const setStatus = (m, ok=true)=>{ el('status').style.color = ok?'green':'red'; el('status').textContent = m; };
-const pad2 = n => String(n).padStart(2,'0');
-const ymd = d => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
-const onlyDateStr = v => {
-  if (!v) return "";
-  if (typeof v === 'string' && v.includes('T')) return v.split('T')[0];
-  if (v instanceof Date && !isNaN(v)) return ymd(v);
-  return String(v);
-};
-const sum = arr => arr.reduce((a,n)=> a + (Number(n)||0), 0);
-const rupee = n => (Number(n)||0).toString();
 
-/* Soft-wrap the long label */
-function softLabel(name){
-  if (!name) return '';
-  return String(name).replace(/Lamination\/UV Coating/gi, 'Lamination/<wbr>UV Coating');
+/* ====== DATE HELPERS ====== */
+function toDMY(value){
+  if(!value) return "";
+  if(value.includes("/")){
+    const p=value.split("/");
+    if(p.length===3) return p[0].padStart(2,"0")+"/"+p[1].padStart(2,"0")+"/"+p[2];
+  }
+  if(value.includes("-")){
+    const p=value.split("-");
+    if(p.length===3) return p[2].padStart(2,"0")+"/"+p[1].padStart(2,"0")+"/"+p[0];
+  }
+  return value;
 }
-
-/* Parse "Name | Expected: YYYY-MM-DD" -> { staff, date } (report shows date alone below name) */
-function parseProcessCell(txt){
-  const s = String(txt||'').trim();
-  if (!s) return { staff:'', date:'' };
-  const m = s.match(/Expected:\s*(\d{4}-\d{2}-\d{2})/i);
-  const date = m ? m[1] : '';
-  const staff = s.split('|')[0].trim();
-  return { staff, date };
+function toYMD(value){
+  if(!value) return "";
+  if(value.includes("/")){
+    const p=value.split("/");
+    if(p.length===3) return p[2]+"-"+p[1].padStart(2,"0")+"-"+p[0].padStart(2,"0");
+  }
+  if(value.includes("-")){
+    const p=value.split("-");
+    if(p.length===3) return p[0]+"-"+p[1].padStart(2,"0")+"-"+p[2].padStart(2,"0");
+  }
+  return value;
 }
 
 /* ====== API ====== */
 async function api(action, params={}){
-  const payload = { action, token: API_TOKEN, ...params };
+  const payload = { action, ...params };
   const body = new URLSearchParams({ payload: JSON.stringify(payload) });
-  const res = await fetch(SCRIPT_URL, { method:'POST', body });
+  const res = await fetch(SCRIPT_URL,{method:"POST",body});
   const txt = await res.text();
-  let j; try{ j = JSON.parse(txt); } catch(e){ throw new Error('Invalid JSON: '+txt); }
-  if (!j.success) throw new Error(j.message || 'Request failed');
+  let j; try{ j=JSON.parse(txt);}catch(e){throw new Error(txt);}
+  if(!j.success) throw new Error(j.message||"fail");
   return j;
 }
 
-/* ====== LOAD BOTH ====== */
-async function loadAll(){
-  showLoader();
+/* ====== DATA ====== */
+let ALL_LINES=[];
+function parseProcessCell(txt){
+  if(!txt) return {staff:"",date:""};
+  const s=String(txt).trim();
+  const m=s.match(/Expected:\s*(\d{4}-\d{2}-\d{2})/i);
+  return {staff:s.split("|")[0].trim(), date:m?m[1]:""};
+}
+
+async function loadAllData(){
+  el("loader").style.display="flex";
   try{
-    const [acc, ord] = await Promise.all([
-      api('getAccountsDataPaged', { page:1, pageSize:100000, showReceived:true }),
-      api('getOrdersForReports')
+    const [acc,ord]=await Promise.all([
+      api("getAccountsDataPaged",{page:1,pageSize:100000,showReceived:true}),
+      api("getOrdersForReports")
     ]);
+    const ordMap=new Map();
+    (ord.rows||[]).forEach(o=>ordMap.set(`${o.srNo}||${o.party}||${o.product}`,o));
 
-    // Map Orders rows (with processes) by Sr|Party|Product
-    const ordMap = new Map();
-    (ord.rows || []).forEach(o=>{
-      const key = `${o.srNo}||${o.party}||${o.product}`;
-      ordMap.set(key, o);
-    });
-
-    // ACC flat rows + join to get per-party processes from Orders
-    ACC_ROWS = (acc.rows || []).map(r => {
-      const key = `${r.srNo}||${r.party||''}||${r.product||''}`;
-      const oo = ordMap.get(key);
+    ALL_LINES=(acc.rows||[]).map(r=>{
+      const key=`${r.srNo}||${r.party||""}||${r.product||""}`;
+      const o=ordMap.get(key)||{};
       return {
-        srNo: String(r.srNo||'').trim(),
-        party: String(r.party||'').trim(),
-        product: String(r.product||'').trim(),
-        orderDt: r.orderDt ? onlyDateStr(r.orderDt) : '',
-        delivDt: r.delivDt ? onlyDateStr(r.delivDt) : '',
-        sheetNm: r.sheetNm||'', sheetSz: r.sheetSz||'', qual: r.qual||'', qty: r.qty||'',
-        total: Number(r.totalAmt||0),
-        received: Number(r.sumReceived||0),
-        pending: Number(r.pending||Math.max(0,(r.totalAmt||0)-(r.sumReceived||0))),
-        status: r.status || (Number(r.pending||0)===0 ? 'Received' : 'Pending'),
-        payments: Array.isArray(r.payments) ? r.payments.map(p=>({ amount:Number(p.amount||0), dateStr:String(p.dateStr||'') })) : [],
-        processes: (oo && oo.processes) ? oo.processes : {},
-        orderFields: (oo && oo.orderFields) ? oo.orderFields : {
-          "Sr. No.": r.srNo, "Sheet Name": r.sheetNm, "Order Date": r.orderDt,
-          "Sheet Size": r.sheetSz, "Quality (mm)": r.qual, "Quantity": r.qty
-        }
+        srNo:String(r.srNo||""),
+        party:String(r.party||""),
+        product:String(r.product||""),
+        orderDt:r.orderDt?toDMY(r.orderDt):"",
+        delivDt:r.delivDt?toDMY(r.delivDt):"",
+        sheet:String(r.sheetNm||""),
+        sheetSz:r.sheetSz||"",
+        qual:r.qual||"",
+        qty:r.qty||"",
+        total:Number(r.totalAmt||0),
+        received:Number(r.sumReceived||0),
+        pending:Number(r.pending||Math.max(0,(r.totalAmt||0)-(r.sumReceived||0))),
+        status:r.status||"Pending",
+        payments:Array.isArray(r.payments)?r.payments.map(p=>({amount:Number(p.amount||0),dateStr:toDMY(p.dateStr)})) : [],
+        processes:o.processes||{}
       };
     });
-
-    JOINED = ACC_ROWS.slice();
-    buildOrdersFromLines(JOINED);
-    renderAll();
-    setStatus(`Loaded ${ORDERS.length} orders, ${JOINED.length} lines`);
-  } catch(e){
-    setStatus('❌ ' + e.message, false);
-  } finally {
-    hideLoader();
-  }
+    buildFilters();
+    renderFiltered();
+  }catch(e){el("status").textContent="❌ "+e.message;}
+  finally{el("loader").style.display="none";}
 }
 
 /* ====== FILTERS ====== */
-function inRange(line, basis, from, to){
-  const o = line.orderDt ? new Date(line.orderDt+'T00:00:00') : null;
-  const d = line.delivDt ? new Date(line.delivDt+'T00:00:00') : null;
-  const ok = (dt) => (!from || dt >= from) && (!to || dt <= to);
-  if (basis === 'order')    return o && ok(o);
-  if (basis === 'delivery') return d && ok(d);
-  const oOK = o && ok(o), dOK = d && ok(d);
-  return oOK || dOK;
+function buildFilters(){
+  const staffSet=new Set();
+  ALL_LINES.forEach(L=>{
+    Object.values(L.processes||{}).forEach(v=>{
+      const {staff}=parseProcessCell(v); if(staff) staffSet.add(staff);
+    });
+  });
+  el("staffSelect").innerHTML='<option value="">All Job Places</option>'+[...staffSet].sort().map(s=>`<option>${s}</option>`).join("");
+
+  const procs=["Designing","Paper","Printing","Lamination/UV Coating","Cutting","Half Cutting","Punching","Leaf Printing","Binding","Pasting","Deliver"];
+  el("processSelect").innerHTML='<option value="">All Processes</option>'+procs.map(p=>`<option>${p}</option>`).join("");
+
+  const srSet=[...new Set(ALL_LINES.map(L=>L.srNo))].sort((a,b)=>a-b);
+  el("searchSr").innerHTML='<option value="">All Sr. Nos.</option>'+srSet.map(s=>`<option>${s}</option>`).join("");
 }
 
 function filterLines(){
-  const basis = el('dateBasis').value;
-  const fd = el('fromDate').value ? new Date(el('fromDate').value+'T00:00:00') : null;
-  const td = el('toDate').value ? new Date(el('toDate').value+'T23:59:59') : null;
-  const statusF = el('statusFilter').value || '';
-  const minP = el('minPending').value === '' ? null : Number(el('minPending').value||0);
-  const q = (el('searchQ').value || '').toLowerCase();
+  const staff=el("staffSelect").value;
+  const proc=el("processSelect").value;
+  const from=el("fromDate").value;
+  const to=el("toDate").value;
+  const procFrom=el("procFromDate").value;
+  const procTo=el("procToDate").value;
+  const statusF=el("statusFilter").value;
+  const minP=el("minPending").value===""?null:Number(el("minPending").value||0);
+  const qSr=el("searchSr").value;
+  const qParty=(el("searchParty").value||"").toLowerCase();
+  const qProd=(el("searchProduct").value||"").toLowerCase();
+  const qSheet=(el("searchSheet").value||"").toLowerCase();
 
-  return JOINED.filter(L=>{
-    if ((fd || td) && !inRange(L, basis, fd, td)) return false;
-    if (statusF && L.status !== statusF) return false;
-    if (minP !== null && L.pending < minP) return false;
-    if (q){
-      const hay = [L.srNo, L.party, L.product, L.orderFields["Sheet Name"]||''].join(' ').toLowerCase();
-      if (!hay.includes(q)) return false;
-    }
-    return true;
-  });
+  let lines=ALL_LINES.slice();
+  if(staff) lines=lines.filter(L=>Object.values(L.processes).some(v=>parseProcessCell(v).staff===staff));
+  if(proc) lines=lines.filter(L=>L.processes[proc]);
+  if(from||to){lines=lines.filter(L=>{const d=toYMD(L.orderDt);return(!from||d>=from)&&(!to||d<=to);});}
+  if(procFrom||procTo){lines=lines.filter(L=>Object.values(L.processes||{}).some(v=>{const {date}=parseProcessCell(v);if(!date) return false;return(!procFrom||date>=procFrom)&&(!procTo||date<=procTo);}));}
+  if(statusF) lines=lines.filter(L=>L.status===statusF);
+  if(minP!==null) lines=lines.filter(L=>L.pending>=minP);
+  if(qSr) lines=lines.filter(L=>L.srNo===qSr);
+  if(qParty) lines=lines.filter(L=>L.party.toLowerCase().includes(qParty));
+  if(qProd) lines=lines.filter(L=>L.product.toLowerCase().includes(qProd));
+  if(qSheet) lines=lines.filter(L=>L.sheet.toLowerCase().includes(qSheet));
+
+  return lines;
 }
 
-function buildOrdersFromLines(lines){
-  const bySr = new Map();
-  lines.forEach(L=>{
-    if (!bySr.has(L.srNo)){
-      bySr.set(L.srNo, {
-        srNo: L.srNo,
-        rowColor: '#d7eadf',
-        shared: {
-          "Sr. No.": L.orderFields["Sr. No."],
-          "Sheet Name": L.orderFields["Sheet Name"],
-          "Order Date": L.orderFields["Order Date"],
-          "Sheet Size": L.orderFields["Sheet Size"],
-          "Quality (mm)": L.orderFields["Quality (mm)"],
-          "Quantity": L.orderFields["Quantity"]
-        },
-        parties: []
-      });
-    }
-    bySr.get(L.srNo).parties.push({
-      party: L.party, product: L.product,
-      delivDt: L.delivDt,
-      total: L.total, received: L.received, pending: L.pending, status: L.status,
-      payments: L.payments,
-      processes: L.processes || {}
-    });
-  });
-  ORDERS = Array.from(bySr.values())
-    .map(o=> ({ ...o, parties: o.parties.sort((a,b)=> a.party.localeCompare(b.party)) }))
-    .sort((a,b)=> Number(a.srNo)-Number(b.srNo));
-}
-
-/* ====== KPIs ====== */
+/* ====== RENDER ====== */
 function renderKPIs(lines){
-  const uniqueSr = Array.from(new Set(lines.map(x=> x.srNo))).length; // unique orders
-  const total = sum(lines.map(x=>x.total));
-  const recv  = sum(lines.map(x=>x.received));
-  const pend  = sum(lines.map(x=>x.pending));
-  const pct   = total ? Math.round((recv/total)*100) : 0;
-  el('kpis').innerHTML = `
-    <div class="kpi"><h4>Total Orders</h4><div class="v mono">${uniqueSr}</div></div>
-    <div class="kpi"><h4>Total Amount</h4><div class="v mono rupee">${rupee(total)}</div></div>
-    <div class="kpi"><h4>Total Received</h4><div class="v mono rupee">${rupee(recv)}</div></div>
-    <div class="kpi"><h4>Total Pending</h4><div class="v mono rupee">${rupee(pend)}</div></div>
-    <div class="kpi"><h4>% Collected</h4><div class="v mono">${pct}%</div></div>
-  `;
+  const uniqueSr=new Set(lines.map(x=>x.srNo)).size;
+  const total=lines.reduce((a,n)=>a+(n.total||0),0);
+  const recv=lines.reduce((a,n)=>a+(n.received||0),0);
+  const pend=lines.reduce((a,n)=>a+(n.pending||0),0);
+  const pct=total?Math.round((recv/total)*100):0;
+  el("kpis").innerHTML=`
+    <div class="kpi"><h4>Total Orders</h4><div class="v">${uniqueSr}</div></div>
+    <div class="kpi"><h4>Total Amount</h4><div class="v rupee">${total}</div></div>
+    <div class="kpi"><h4>Total Received</h4><div class="v rupee">${recv}</div></div>
+    <div class="kpi"><h4>Total Pending</h4><div class="v rupee">${pend}</div></div>
+    <div class="kpi"><h4>% Collected</h4><div class="v">${pct}%</div></div>`;
 }
 
-/* ====== DOM BUILDERS ====== */
-function sharedCard(o){
-  const wr = document.createElement('div'); wr.className='stickyL';
-  wr.innerHTML = `
-    <div class="shared" style="border-left-color:${o.rowColor}">
-      <h3>Order ${o.srNo}</h3>
-      <div class="kv">
-        <div>Sr. No.</div><div>${o.shared['Sr. No.']||''}</div>
-        <div>Job Name</div><div>${o.shared['Sheet Name']||''}</div>
-        <div>Order Date</div><div>${o.shared['Order Date']||''}</div>
-        <div>Sheet Size</div><div>${o.shared['Sheet Size']||''}</div>
-        <div>Quality</div><div>${o.shared['Quality (mm)']||''}</div>
-        <div>Quantity</div><div>${o.shared['Quantity']||''}</div>
-      </div>
-    </div>`;
-  return wr;
-}
-
-function partyHeader(o){
-  const hd = document.createElement('div'); hd.className='head';
-  const hc = document.createElement('div'); hc.className='headCols';
-  o.parties.forEach(p=>{
-    const d=document.createElement('div');
-    d.textContent = p.party + (p.product?` (${p.product})`:'');
-    hc.appendChild(d);
-  });
-  hd.appendChild(hc); return hd;
-}
-
-function partyProcessesCard(procs){
-  const card = document.createElement('div'); card.className='procCard';
-  const names = Object.keys(procs||{});
-  if (!names.length){ card.textContent = '—'; return card; }
-  names.forEach(n=>{
-    const row = document.createElement('div'); row.className='procRow';
-    const left = document.createElement('div'); left.className='procName mono softWrap'; left.innerHTML = softLabel(n);
-    const right = document.createElement('div'); right.className='procVal';
-    const { staff, date } = parseProcessCell(procs[n]);
-    const who = document.createElement('div'); who.className='who';  who.textContent = staff || '';
-    const when= document.createElement('div'); when.className='when'; when.textContent = date || '';
-    right.append(who, when);
-    row.append(left, right);
-    card.appendChild(row);
-  });
-  return card;
-}
-
-function partyCol(p){
-  const col = document.createElement('div'); col.className='party';
-  const title = document.createElement('div'); title.className='partyTitle';
-  title.textContent = p.party + (p.product?` (${p.product})`:'');
-  col.appendChild(title);
-
-  // Processes first (per party)
-  col.appendChild(partyProcessesCard(p.processes||{}));
-
-  if (p.delivDt){
-    const l=document.createElement('div'); l.className='mini'; l.textContent='Delivery Date';
-    const v=document.createElement('div'); v.className='inlike mono'; v.textContent=p.delivDt;
-    col.append(l,v);
-  }
-
-  const lt=document.createElement('div'); lt.className='mini'; lt.textContent='Total Amount';
-  const tv=document.createElement('div'); tv.className='inlike mono rupee'; tv.textContent=rupee(p.total);
-  col.append(lt,tv);
-
-  const lr=document.createElement('div'); lr.className='mini'; lr.textContent='Amount Received';
-  const list=document.createElement('div'); list.className='inlike payList';
-  const pays = Array.isArray(p.payments) ? p.payments : [];
-  if (!pays.length){
-    const empty = document.createElement('div'); empty.style.color='#889692'; empty.textContent='—';
-    list.appendChild(empty);
-  } else {
-    pays.forEach(px=>{
-      const line = document.createElement('div'); line.className='payLine';
-      const amt = document.createElement('div'); amt.className='payAmt mono rupee'; amt.textContent = rupee(px.amount);
-      const date = document.createElement('div'); date.className='payDate mono'; date.textContent = px.dateStr || '--/--/----';
-      line.append(amt,date); list.append(line);
-    });
-  }
-  col.append(lr,list);
-
-  const lp=document.createElement('div'); lp.className='mini'; lp.textContent='Pending';
-  const pv=document.createElement('div'); pv.className='inlike mono rupee'; pv.textContent=rupee(p.pending);
-  col.append(lp,pv);
-
-  const ls=document.createElement('div'); ls.className='mini'; ls.textContent='Status';
-  const sv=document.createElement('div'); sv.className='inlike mono'; sv.textContent=p.status;
-  col.append(ls,sv);
-
-  return col;
-}
-
-function renderOrder(o){
-  const row = document.createElement('div'); row.className='orderRow';
-  row.appendChild(sharedCard(o));
-  const right=document.createElement('div'); right.className='right';
-  const grid=document.createElement('div'); grid.className='panel';
-  const header = partyHeader(o);
-  const cols = document.createElement('div'); cols.className='cols';
-  o.parties.forEach(p=> cols.appendChild(partyCol(p)));
-  grid.append(header, cols);
-  right.appendChild(grid);
-  row.appendChild(right);
-  return row;
-}
-
-function renderOrdersChunk(groups){
-  const host = el('ordersHost');
-  host.innerHTML = '';
-  let i = 0;
-  (function pump(){
-    const frag = document.createDocumentFragment();
-    const stop = Math.min(i + RENDER_PER_FRAME, groups.length);
-    for (; i < stop; i++){
-      frag.appendChild(renderOrder(groups[i]));
-    }
-    host.appendChild(frag);
-    if (i < groups.length) requestAnimationFrame(pump);
-  })();
-}
-
-/* ====== RENDER ALL ====== */
-function renderAll(){
-  const lines = filterLines();
-  buildOrdersFromLines(lines);
+function renderFiltered(){
+  const lines=filterLines();
   renderKPIs(lines);
-  renderOrdersChunk(ORDERS);
+  const host=el("ordersHost"); host.innerHTML="";
+  if(!lines.length){host.textContent="No data"; return;}
+  const bySr=new Map();
+  lines.forEach(L=>{
+    if(!bySr.has(L.srNo)) bySr.set(L.srNo,{...L,parties:[]});
+    bySr.get(L.srNo).parties.push(L);
+  });
+  bySr.forEach(o=>{
+    const row=document.createElement("div"); row.className="orderRow";
+    const left=document.createElement("div"); left.className="stickyL";
+    left.innerHTML=`<div class="shared"><h3>Order ${o.srNo}</h3>
+      <div class="kv">
+        <div>Job Name</div><div>${o.sheet}</div>
+        <div>Order Date</div><div>${o.orderDt}</div>
+        <div>Delivery Date</div><div>${o.delivDt}</div>
+        <div>Size</div><div>${o.sheetSz}</div>
+        <div>Quality</div><div>${o.qual}</div>
+        <div>Qty</div><div>${o.qty}</div>
+      </div></div>`;
+    row.appendChild(left);
+    const right=document.createElement("div"); right.className="right";
+    const cols=document.createElement("div"); cols.className="cols";
+    o.parties.forEach(p=>{
+      const col=document.createElement("div"); col.className="party";
+      col.innerHTML=`<div class="partyTitle">${p.party}${p.product?` (${p.product})`:""}</div>`;
+      const procCard=document.createElement("div"); procCard.className="procCard";
+      const names=Object.keys(p.processes||{});
+      if(!names.length){procCard.textContent="—";}
+      else{
+        names.forEach(n=>{
+          const {staff,date}=parseProcessCell(p.processes[n]);
+          const r=document.createElement("div"); r.className="procRow";
+          r.innerHTML=`<div class="procName">${n}</div><div class="who">${staff}</div><div class="when">${date}</div>`;
+          procCard.appendChild(r);
+        });
+      }
+      col.appendChild(procCard);
+      col.innerHTML+=`<div>Total: ₹${p.total}</div><div>Received: ₹${p.received}</div><div>Pending: ₹${p.pending}</div><div>Status: ${p.status}</div>`;
+      cols.appendChild(col);
+    });
+    right.appendChild(cols);
+    row.appendChild(right);
+    host.appendChild(row);
+  });
+
+  /* ✅ adjust sticky offset after rendering */
+  adjustStickyOffset();
+}
+
+/* ====== STICKY OFFSET FIX ====== */
+function adjustStickyOffset(){
+  const navH=document.querySelector(".nav")?.offsetHeight||0;
+  const toolbarH=document.querySelector(".toolbar")?.offsetHeight||0;
+  const offset=navH+toolbarH+8;
+  document.querySelectorAll(".stickyL").forEach(el=>el.style.top=offset+"px");
 }
 
 /* ====== EXPORTS ====== */
-function csvEscape(s){ if (s == null) return ''; s = String(s); if (s.includes('"')||s.includes(',')||s.includes('\n')) return `"${s.replace(/"/g,'""')}"`; return s; }
-function downloadBlob(name, mime, text){
-  const blob = new Blob([text], { type: mime });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = name; a.click();
-  setTimeout(()=> URL.revokeObjectURL(url), 1000);
-}
-function buildFilename(prefix){
-  const basis = el('dateBasis').value;
-  const f = el('fromDate').value || 'all';
-  const t = el('toDate').value || 'all';
-  return `${prefix}_${basis}_${f}_to_${t}`;
-}
-
 function exportCsvLedger(){
-  const lines = filterLines();
-  const header = ["Sr. No.","Party","Product","Order Date","Delivery Date","Total","Received","Pending","Status","Sheet Name","Sheet Size","Quality","Quantity"];
-  const rows = lines.map(r=>[
-    r.srNo,r.party,r.product,r.orderDt,r.delivDt,r.total,r.received,r.pending,r.status,
-    r.orderFields["Sheet Name"]||"", r.orderFields["Sheet Size"]||"", r.orderFields["Quality (mm)"]||"", r.orderFields["Quantity"]||""
-  ]);
-  const csv = [header, ...rows].map(line => line.map(csvEscape).join(",")).join("\n");
-  downloadBlob(buildFilename("Ledger") + ".csv", "text/csv;charset=utf-8", csv);
+  const lines=filterLines();
+  const header=["Sr. No.","Party","Product","Order Date","Delivery Date","Total","Received","Pending","Status"];
+  const rows=lines.map(r=>[r.srNo,r.party,r.product,r.orderDt,r.delivDt,r.total,r.received,r.pending,r.status]);
+  const csv=[header,...rows].map(line=>line.join(",")).join("\n");
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download="Ledger.csv"; a.click();
 }
-
 function exportCsvPayments(){
-  const lines = filterLines();
-  const header = ["Date","Sr. No.","Party","Product","Amount"];
-  const rows = [];
-  lines.forEach(r=>{
-    (r.payments||[]).forEach(p=>{
-      rows.push([p.dateStr || "--/--/----", r.srNo, r.party, r.product, Number(p.amount||0)]);
-    });
-  });
-  const csv = [header, ...rows].map(line => line.map(csvEscape).join(",")).join("\n");
-  downloadBlob(buildFilename("Payments") + ".csv", "text/csv;charset=utf-8", csv);
+  const lines=filterLines(); const rows=[];
+  lines.forEach(r=>(r.payments||[]).forEach(p=>rows.push([p.dateStr,r.srNo,r.party,r.product,p.amount])));
+  const header=["Date","Sr. No.","Party","Product","Amount"];
+  const csv=[header,...rows].map(line=>line.join(",")).join("\n");
+  const blob=new Blob([csv],{type:"text/csv"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download="Payments.csv"; a.click();
 }
-function exportPdf(){ window.print(); }
-
-/* ====== EVENTS ====== */
-function hookFilters(){
-  ["dateBasis","fromDate","toDate","statusFilter"].forEach(id=>{
-    el(id).addEventListener('change', renderAll);
-  });
-  el('minPending').addEventListener('input', renderAll);
-  el('searchQ').addEventListener('input', renderAll);
-  el('downloadCsvLedgerBtn').addEventListener('click', exportCsvLedger);
-  el('downloadCsvPaymentsBtn').addEventListener('click', exportCsvPayments);
-  el('downloadBtn').addEventListener('click', exportPdf);
-}
+function exportPdf(){window.print();}
 
 /* ====== INIT ====== */
-document.addEventListener('DOMContentLoaded', async ()=>{
-  hookFilters();
-  await loadAll();
+document.addEventListener("DOMContentLoaded",async()=>{
+  await loadAllData();
+  ["fromDate","toDate","procFromDate","procToDate","staffSelect","processSelect","searchSr","statusFilter"].forEach(id=>el(id).addEventListener("change",renderFiltered));
+  ["minPending","searchParty","searchProduct","searchSheet"].forEach(id=>el(id).addEventListener("input",renderFiltered));
+  el("downloadCsvLedgerBtn").addEventListener("click",exportCsvLedger);
+  el("downloadCsvPaymentsBtn").addEventListener("click",exportCsvPayments);
+  el("downloadBtn").addEventListener("click",exportPdf);
 });
 </script>
 </body>
 </html>
-
