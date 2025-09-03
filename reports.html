@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Reports</title>
 <style>
-  :root{ --g900:#0f3d2e; --g800:#145a41; --bg:#f6fbf8; --card:#fff; --ink:#1a2421; --muted:#5b6b6f; --line:#e5efe8; --soft:#eef8f2; }
+  :root{
+    --g900:#0f3d2e; --g800:#145a41; --bg:#f6fbf8; --card:#fff;
+    --ink:#1a2421; --muted:#5b6b6f; --line:#e5efe8; --soft:#eef8f2;
+  }
   *{box-sizing:border-box}
   body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--ink);font-size:13px;}
 
@@ -46,37 +49,48 @@
   /* ORDER ROWS */
   .orderRow{display:flex;gap:6px;margin:6px 0;}
   .stickyL{position:sticky;align-self:flex-start;min-width:220px;z-index:50}
-  .shared{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px;border-left:6px solid var(--g800)}
-  .shared h3{margin:0 0 4px;color:var(--g800);font-size:13px}
+  .shared{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px;border-left:6px solid var(--g800);box-shadow:0 2px 6px rgba(0,0,0,0.06)}
+  .shared h3{margin:0 0 4px;color:var(--g800);font-size:13px;font-weight:700}
   .kv{display:grid;grid-template-columns:90px 1fr;gap:4px 6px;font-size:10px;line-height:1.2}
 
   .right{flex:1;min-width:0}
   .panel{border:1px solid var(--line);border-radius:8px;background:var(--card);overflow:hidden}
-  .cols{display:grid;grid-auto-flow:column;grid-auto-columns:200px;gap:6px;padding:6px;overflow:auto}
+  .cols{display:grid;grid-auto-flow:column;grid-auto-columns:220px;gap:6px;padding:6px;overflow:auto}
 
   .party{border:1px solid var(--line);border-radius:6px;padding:6px;background:#fff;min-width:0;font-size:11px}
   .partyTitle{font-weight:800;color:var(--g800);margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .procCard{border:1px dashed #d9e9df;background:#f9fcfa;border-radius:4px;padding:4px;margin-bottom:4px;font-size:10px}
+  .procCard{border:1px dashed #d9e9df;background:#f9fcfa;border-radius:4px;padding:4px;margin-bottom:6px;font-size:10px}
   .procRow{border-bottom:1px solid var(--line);padding:2px 0}
   .procRow:last-child{border-bottom:none}
   .procName{color:var(--g800);font-weight:700;font-size:10px}
   .who{font-size:10px;margin-left:2px}
   .when{font-size:9px;color:#6b7c73;margin-left:2px}
 
+  /* Finance card */
+  .financeCard{margin-top:6px;border:1px solid #d7eadf;border-radius:6px;background:#f9fcfa;padding:6px;font-size:10.5px;box-shadow:inset 0 1px 2px rgba(0,0,0,0.05)}
+  .financeCard h4{margin:0 0 4px;font-size:11px;color:var(--g800);font-weight:700;border-bottom:1px dashed #cfe7da;padding-bottom:2px}
+  .financeLine{margin:2px 0}
+  .paymentsBox{margin-top:4px}
+  .paymentsBox h5{margin:0 0 3px;font-size:10px;color:var(--muted)}
+  .paymentLine{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px dotted #e0e0e0}
+  .paymentLine:last-child{border-bottom:none}
+  .paymentAmt{font-weight:700;color:#1c7a57}
+  .paymentDate{font-size:10px;color:#666}
+
   /* Loader */
   .loader{position:fixed;inset:0;background:#0006;backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:999}
   .ring{width:48px;height:48px;border:4px solid #fff;border-top:4px solid #1c7a57;border-radius:50%;animation:spin 1s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
-  @media print {
-  body{background:#fff;font-size:11px}
-  .nav,.toolbar{display:none !important}
-  .wrap{max-width:none;margin:0;padding:0}   /* ✅ allow full width */
-  .card{box-shadow:none;border:none;padding:0;width:auto;max-width:none} /* ✅ no fixed width */
-  .cols{overflow:visible !important}
-  .panel{border:none}
-  .orderRow{break-inside:avoid}
-}
 
+  @media print {
+    body{background:#fff;font-size:11px}
+    .nav,.toolbar{display:none !important}
+    .wrap{max-width:none;margin:0;padding:0}
+    .card{box-shadow:none;border:none;padding:0;width:auto;max-width:none}
+    .cols{overflow:visible !important}
+    .panel{border:none}
+    .orderRow{break-inside:avoid}
+  }
 </style>
 </head>
 <body>
@@ -134,10 +148,9 @@
   </div>
 
   <div class="loader" id="loader"><div class="ring"></div></div>
-
 <script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwcf50t0NaZ9C161tedpxs4rRN0zFElewYNNHCucH-_BFno5NER1ZH5rWjKLYqRIJXw/exec";
-const el = id => document.getElementById(id);
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbwcf50t0NaZ9C161tedpxs4rRN0zFElewYNNHCucH-_BFno5NER1ZH5rWjKLYqRIJXw/exec";
+const el=id=>document.getElementById(id);
 
 /* ====== DATE HELPERS ====== */
 function toDMY(value){
@@ -166,12 +179,12 @@ function toYMD(value){
 }
 
 /* ====== API ====== */
-async function api(action, params={}){
-  const payload = { action, ...params };
-  const body = new URLSearchParams({ payload: JSON.stringify(payload) });
-  const res = await fetch(SCRIPT_URL,{method:"POST",body});
-  const txt = await res.text();
-  let j; try{ j=JSON.parse(txt);}catch(e){throw new Error(txt);}
+async function api(action,params={}){
+  const payload={action,...params};
+  const body=new URLSearchParams({payload:JSON.stringify(payload)});
+  const res=await fetch(SCRIPT_URL,{method:"POST",body});
+  const txt=await res.text();
+  let j;try{j=JSON.parse(txt);}catch(e){throw new Error(txt);}
   if(!j.success) throw new Error(j.message||"fail");
   return j;
 }
@@ -193,10 +206,9 @@ async function loadAllData(){
       api("getOrdersForReports")
     ]);
     const ordMap=new Map();
-    (ord.rows||[]).forEach(o=>ordMap.set(`${o.srNo}||${o.party}||${o.product}`,o));
-
+    (ord.rows||[]).forEach(o=>ordMap.set(o.srNo+"||"+o.party+"||"+o.product,o));
     ALL_LINES=(acc.rows||[]).map(r=>{
-      const key=`${r.srNo}||${r.party||""}||${r.product||""}`;
+      const key=r.srNo+"||"+(r.party||"")+"||"+(r.product||"");
       const o=ordMap.get(key)||{};
       return {
         srNo:String(r.srNo||""),
@@ -212,7 +224,7 @@ async function loadAllData(){
         received:Number(r.sumReceived||0),
         pending:Number(r.pending||Math.max(0,(r.totalAmt||0)-(r.sumReceived||0))),
         status:r.status||"Pending",
-        payments:Array.isArray(r.payments)?r.payments.map(p=>({amount:Number(p.amount||0),dateStr:toDMY(p.dateStr)})) : [],
+        payments:Array.isArray(r.payments)?r.payments.map(p=>({amount:Number(p.amount||0),dateStr:toDMY(p.dateStr)})):[],
         processes:o.processes||{}
       };
     });
@@ -227,16 +239,14 @@ function buildFilters(){
   const staffSet=new Set();
   ALL_LINES.forEach(L=>{
     Object.values(L.processes||{}).forEach(v=>{
-      const {staff}=parseProcessCell(v); if(staff) staffSet.add(staff);
+      const {staff}=parseProcessCell(v);if(staff) staffSet.add(staff);
     });
   });
-  el("staffSelect").innerHTML='<option value="">All Job Places</option>'+[...staffSet].sort().map(s=>`<option>${s}</option>`).join("");
-
+  el("staffSelect").innerHTML='<option value="">All Job Places</option>'+[...staffSet].sort().map(s=>"<option>"+s+"</option>").join("");
   const procs=["Designing","Paper","Printing","Lamination/UV Coating","Cutting","Half Cutting","Punching","Leaf Printing","Binding","Pasting","Deliver"];
-  el("processSelect").innerHTML='<option value="">All Processes</option>'+procs.map(p=>`<option>${p}</option>`).join("");
-
+  el("processSelect").innerHTML='<option value="">All Processes</option>'+procs.map(p=>"<option>"+p+"</option>").join("");
   const srSet=[...new Set(ALL_LINES.map(L=>L.srNo))].sort((a,b)=>a-b);
-  el("searchSr").innerHTML='<option value="">All Sr. Nos.</option>'+srSet.map(s=>`<option>${s}</option>`).join("");
+  el("searchSr").innerHTML='<option value="">All Sr. Nos.</option>'+srSet.map(s=>"<option>"+s+"</option>").join("");
 }
 
 function filterLines(){
@@ -257,14 +267,13 @@ function filterLines(){
   if(staff) lines=lines.filter(L=>Object.values(L.processes).some(v=>parseProcessCell(v).staff===staff));
   if(proc) lines=lines.filter(L=>L.processes[proc]);
   if(from||to){lines=lines.filter(L=>{const d=toYMD(L.orderDt);return(!from||d>=from)&&(!to||d<=to);});}
-  if(procFrom||procTo){lines=lines.filter(L=>Object.values(L.processes||{}).some(v=>{const {date}=parseProcessCell(v);if(!date) return false;return(!procFrom||date>=procFrom)&&(!procTo||date<=procTo);}));}
+  if(procFrom||procTo){lines=lines.filter(L=>Object.values(L.processes||{}).some(v=>{const{date}=parseProcessCell(v);if(!date)return false;return(!procFrom||date>=procFrom)&&(!procTo||date<=procTo);}));}
   if(statusF) lines=lines.filter(L=>L.status===statusF);
   if(minP!==null) lines=lines.filter(L=>L.pending>=minP);
   if(qSr) lines=lines.filter(L=>L.srNo===qSr);
   if(qParty) lines=lines.filter(L=>L.party.toLowerCase().includes(qParty));
   if(qProd) lines=lines.filter(L=>L.product.toLowerCase().includes(qProd));
   if(qSheet) lines=lines.filter(L=>L.sheet.toLowerCase().includes(qSheet));
-
   return lines;
 }
 
@@ -275,12 +284,12 @@ function renderKPIs(lines){
   const recv=lines.reduce((a,n)=>a+(n.received||0),0);
   const pend=lines.reduce((a,n)=>a+(n.pending||0),0);
   const pct=total?Math.round((recv/total)*100):0;
-  el("kpis").innerHTML=`
-    <div class="kpi"><h4>Total Orders</h4><div class="v">${uniqueSr}</div></div>
-    <div class="kpi"><h4>Total Amount</h4><div class="v rupee">${total}</div></div>
-    <div class="kpi"><h4>Total Received</h4><div class="v rupee">${recv}</div></div>
-    <div class="kpi"><h4>Total Pending</h4><div class="v rupee">${pend}</div></div>
-    <div class="kpi"><h4>% Collected</h4><div class="v">${pct}%</div></div>`;
+  el("kpis").innerHTML=
+    '<div class="kpi"><h4>Total Orders</h4><div class="v">'+uniqueSr+'</div></div>'+
+    '<div class="kpi"><h4>Total Amount</h4><div class="v rupee">'+total+'</div></div>'+
+    '<div class="kpi"><h4>Total Received</h4><div class="v rupee">'+recv+'</div></div>'+
+    '<div class="kpi"><h4>Total Pending</h4><div class="v rupee">'+pend+'</div></div>'+
+    '<div class="kpi"><h4>% Collected</h4><div class="v">'+pct+'%</div></div>';
 }
 
 function renderFiltered(){
@@ -288,29 +297,35 @@ function renderFiltered(){
   renderKPIs(lines);
   const host=el("ordersHost"); host.innerHTML="";
   if(!lines.length){host.textContent="No data"; return;}
+
   const bySr=new Map();
   lines.forEach(L=>{
     if(!bySr.has(L.srNo)) bySr.set(L.srNo,{...L,parties:[]});
     bySr.get(L.srNo).parties.push(L);
   });
+
   bySr.forEach(o=>{
     const row=document.createElement("div"); row.className="orderRow";
+
     const left=document.createElement("div"); left.className="stickyL";
-    left.innerHTML=`<div class="shared"><h3>Order ${o.srNo}</h3>
-      <div class="kv">
-        <div>Job Name</div><div>${o.sheet}</div>
-        <div>Order Date</div><div>${o.orderDt}</div>
-        <div>Delivery Date</div><div>${o.delivDt}</div>
-        <div>Size</div><div>${o.sheetSz}</div>
-        <div>Quality</div><div>${o.qual}</div>
-        <div>Qty</div><div>${o.qty}</div>
-      </div></div>`;
+    left.innerHTML='<div class="shared"><h3>Order '+o.srNo+'</h3>'+
+      '<div class="kv">'+
+      '<div>Job Name</div><div>'+o.sheet+'</div>'+
+      '<div>Order Date</div><div>'+o.orderDt+'</div>'+
+      '<div>Delivery Date</div><div>'+o.delivDt+'</div>'+
+      '<div>Size</div><div>'+o.sheetSz+'</div>'+
+      '<div>Quality</div><div>'+o.qual+'</div>'+
+      '<div>Qty</div><div>'+o.qty+'</div>'+
+      '</div></div>';
     row.appendChild(left);
+
     const right=document.createElement("div"); right.className="right";
     const cols=document.createElement("div"); cols.className="cols";
+
     o.parties.forEach(p=>{
       const col=document.createElement("div"); col.className="party";
-      col.innerHTML=`<div class="partyTitle">${p.party}${p.product?` (${p.product})`:""}</div>`;
+      col.innerHTML='<div class="partyTitle">'+p.party+(p.product?' ('+p.product+')':'')+'</div>';
+
       const procCard=document.createElement("div"); procCard.className="procCard";
       const names=Object.keys(p.processes||{});
       if(!names.length){procCard.textContent="—";}
@@ -318,20 +333,38 @@ function renderFiltered(){
         names.forEach(n=>{
           const {staff,date}=parseProcessCell(p.processes[n]);
           const r=document.createElement("div"); r.className="procRow";
-          r.innerHTML=`<div class="procName">${n}</div><div class="who">${staff}</div><div class="when">${date}</div>`;
+          r.innerHTML='<div class="procName">'+n+'</div><div class="who">'+staff+'</div><div class="when">'+date+'</div>';
           procCard.appendChild(r);
         });
       }
       col.appendChild(procCard);
-      col.innerHTML+=`<div>Total: ₹${p.total}</div><div>Received: ₹${p.received}</div><div>Pending: ₹${p.pending}</div><div>Status: ${p.status}</div>`;
+
+      // finance card inside party
+      const fin=document.createElement("div"); fin.className="financeCard";
+      fin.innerHTML='<h4>Finance</h4>'+
+        '<div class="financeLine"><b>Total:</b> ₹'+p.total+'</div>'+
+        '<div class="financeLine"><b>Pending:</b> ₹'+p.pending+'</div>'+
+        '<div class="financeLine"><b>Status:</b> '+p.status+'</div>';
+
+      if(p.payments.length){
+        const payBox=document.createElement("div"); payBox.className="paymentsBox";
+        payBox.innerHTML="<h5>Payments</h5>";
+        p.payments.forEach(px=>{
+          const line=document.createElement("div"); line.className="paymentLine";
+          line.innerHTML='<div class="paymentAmt">₹'+px.amount+'</div><div class="paymentDate">'+px.dateStr+'</div>';
+          payBox.appendChild(line);
+        });
+        fin.appendChild(payBox);
+      }
+      col.appendChild(fin);
       cols.appendChild(col);
     });
+
     right.appendChild(cols);
     row.appendChild(right);
     host.appendChild(row);
   });
 
-  /* ✅ adjust sticky offset after rendering */
   adjustStickyOffset();
 }
 
@@ -367,8 +400,10 @@ function exportPdf(){window.print();}
 /* ====== INIT ====== */
 document.addEventListener("DOMContentLoaded",async()=>{
   await loadAllData();
-  ["fromDate","toDate","procFromDate","procToDate","staffSelect","processSelect","searchSr","statusFilter"].forEach(id=>el(id).addEventListener("change",renderFiltered));
-  ["minPending","searchParty","searchProduct","searchSheet"].forEach(id=>el(id).addEventListener("input",renderFiltered));
+  ["fromDate","toDate","procFromDate","procToDate","staffSelect","processSelect","searchSr","statusFilter"]
+    .forEach(id=>el(id).addEventListener("change",renderFiltered));
+  ["minPending","searchParty","searchProduct","searchSheet"]
+    .forEach(id=>el(id).addEventListener("input",renderFiltered));
   el("downloadCsvLedgerBtn").addEventListener("click",exportCsvLedger);
   el("downloadCsvPaymentsBtn").addEventListener("click",exportCsvPayments);
   el("downloadBtn").addEventListener("click",exportPdf);
